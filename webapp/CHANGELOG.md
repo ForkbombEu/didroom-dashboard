@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/ForkbombEu/signroom/compare/v1.34.8...v1.35.0) (2025-02-06)
+
+
+### Features
+
+* **signatures:** do not allow signing if certificate is not available ([#968](https://github.com/ForkbombEu/signroom/issues/968)) ([e5a5511](https://github.com/ForkbombEu/signroom/commit/e5a5511b8a9c215c503facc89fe7a49233993850))
+
 ## [1.34.8](https://github.com/ForkbombEu/signroom/compare/v1.34.7...v1.34.8) (2025-02-03)
 
 
