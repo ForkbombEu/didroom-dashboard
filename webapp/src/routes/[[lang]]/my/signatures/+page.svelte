@@ -13,8 +13,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		type SignaturesResponse
 	} from '$lib/pocketbase/types';
 	import { CollectionManager, CreateRecord, EditRecord } from '$lib/collectionManager';
-	import { Button, Toast, A, Dropdown, DropdownItem } from 'flowbite-svelte';
-	import { ArrowDownTray, Eye, Pencil, Plus } from 'svelte-heros-v2';
+	import { Button, Toast, A, Dropdown, DropdownItem, Alert } from 'flowbite-svelte';
+	import { ArrowDownTray, ArrowRight, Eye, Pencil, Plus } from 'svelte-heros-v2';
 	import { slide } from 'svelte/transition';
 	import { createTypeProp } from '$lib/utils/typeProp';
 	import CollectionEmptyState from '$lib/collectionManager/ui/collectionEmptyState.svelte';
@@ -108,6 +108,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	//
 
+	function areCertificatesAvailable() {
+		const allCertificates = Object.keys(getCertificatesFromLocalStorage());
+		return allCertificates.length > 0;
+	}
+
 	function areCertificatesAvailableForSignatureType(type: SignaturesTypeOptions) {
 		const allCertificates = Object.keys(getCertificatesFromLocalStorage());
 		const invalidCertificates = getInvalidCertificates(type);
@@ -116,6 +121,24 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <PageContent>
+	{#if !areCertificatesAvailable()}
+		<PageCard>
+			<Alert color="yellow" border>
+				<div class="flex items-center justify-between gap-4">
+					<div>
+						<p class="mb-2 font-bold">{m.Warning()}</p>
+						<p>{m.No_certificates_are_available_for_files_signature_()}</p>
+						<p>{m.To_sign_a_new_file_please_load_a_new_certificate_()}</p>
+					</div>
+					<Button href="/my/certificates" color="primary" outline>
+						<Icon src={ArrowRight} mr />
+						{m.Go_to_certificates_page()}
+					</Button>
+				</div>
+			</Alert>
+		</PageCard>
+	{/if}
+
 	{#if !folder}
 		<PageCard>
 			<CollectionManager
@@ -192,7 +215,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					{#if folder}
 						<Button outline href="/my/signatures">
 							<Icon src={ArrowLeft} ml />
-							Back to all signatures
+							{m.Back_to_all_signatures()}
 						</Button>
 					{/if}
 
@@ -204,10 +227,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 									{m.View_shared_signatures()}
 								</Button>
 								<div>
-									<Button>
-										<Icon src={Plus} mr />
-										<span class="capitalize">{m.Sign_file()}</span>
-									</Button>
+									{#if areCertificatesAvailable()}
+										<Button>
+											<Icon src={Plus} mr />
+											<span class="capitalize">{m.Sign_file()}</span>
+										</Button>
+									{/if}
+
 									<Dropdown class="min-w-40">
 										{#each Object.values(SignaturesTypeOptions) as type}
 											<!-- {@const check = areCertificatesAvailableForSignatureType(type)} -->
