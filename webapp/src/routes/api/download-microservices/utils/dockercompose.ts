@@ -102,6 +102,9 @@ function dockerComposeTemplate(
     - type: bind
       source: ./${serviceFullName}/public
       target: /app/public
+    - type: bind
+      source: ~/.config/didroom
+      target: /root/.config/didroom
 `;
 }
 

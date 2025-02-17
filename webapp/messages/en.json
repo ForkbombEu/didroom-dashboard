@@ -363,5 +363,10 @@
   "Invalid_seed": "Invalid cryptographic seed",
   "An_error_occurred_while_verifying_your_email_": "An error occurred while verifying your email! :(",
   "Oh_no": "Oh no!",
-  "Email_verified_succesfully": "Email verified succesfully!"
+  "Email_verified_succesfully": "Email verified succesfully!",
+  "Back_to_all_signatures": "Back to all signatures",
+  "No_certificates_are_available_for_signing_files_": "No certificates are available for signing files.",
+  "No_certificates_are_available_for_files_signature_": "No certificates are available for files signature.",
+  "To_sign_a_new_file_please_load_a_new_certificate_": "To sign a new file, please load a new certificate.",
+  "Go_to_certificates_page": "Go to certificates page"
 }

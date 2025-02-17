@@ -1,3 +1,18 @@
+# [1.35.0](https://github.com/ForkbombEu/signroom/compare/v1.34.8...v1.35.0) (2025-02-06)
+
+
+### Features
+
+* **signatures:** do not allow signing if certificate is not available ([#968](https://github.com/ForkbombEu/signroom/issues/968)) ([e5a5511](https://github.com/ForkbombEu/signroom/commit/e5a5511b8a9c215c503facc89fe7a49233993850))
+
+## [1.34.8](https://github.com/ForkbombEu/signroom/compare/v1.34.7...v1.34.8) (2025-02-03)
+
+
+### Bug Fixes
+
+* **microservices:** add bind mount for microservices config in compose template ([#983](https://github.com/ForkbombEu/signroom/issues/983)) ([d678b53](https://github.com/ForkbombEu/signroom/commit/d678b53b8ab0e8ffc5be67158ff97a392fbe767e))
+* Update privacy policy and terms links on register ([#982](https://github.com/ForkbombEu/signroom/issues/982)) ([85d1dd0](https://github.com/ForkbombEu/signroom/commit/85d1dd069ccb62d9255335035dfee3a6a6f419c8))
+
 ## [1.34.7](https://github.com/ForkbombEu/signroom/compare/v1.34.6...v1.34.7) (2024-12-20)
 
 

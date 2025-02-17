@@ -31,6 +31,7 @@ jobs:
       - uses: dyne/pnpm@main
         with:
           working-directory: webapp
+          node-version: 20.14.0
       - run: make build
       - run: pnpm i18n:lint
         working-directory: webapp
@@ -62,6 +63,7 @@ jobs:
       - uses: dyne/pnpm@main
         with:
           working-directory: ./webapp
+          node-version: 20.14.0
       - run: pnpm add -D @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/error @semantic-release/git @semantic-release/github @semantic-release/npm @semantic-release/release-notes-generator semantic-release 
       - run: pnpm semantic-release
         env:
