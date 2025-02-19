@@ -1,3 +1,10 @@
+## [1.35.1](https://github.com/ForkbombEu/signroom/compare/v1.35.0...v1.35.1) (2025-02-19)
+
+
+### Bug Fixes
+
+* make the dashboard reactive on org changes ([#985](https://github.com/ForkbombEu/signroom/issues/985)) ([99436f4](https://github.com/ForkbombEu/signroom/commit/99436f4612fa712cc9062e8620a7a2999c23561e))
+
 # [1.35.0](https://github.com/ForkbombEu/signroom/compare/v1.34.8...v1.35.0) (2025-02-06)
 
 
