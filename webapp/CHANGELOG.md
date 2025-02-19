@@ -1,3 +1,10 @@
+## [1.35.2](https://github.com/ForkbombEu/signroom/compare/v1.35.1...v1.35.2) (2025-02-19)
+
+
+### Bug Fixes
+
+* improved error messages handling ([#987](https://github.com/ForkbombEu/signroom/issues/987)) ([73441e4](https://github.com/ForkbombEu/signroom/commit/73441e441839abdc9f919d6d34dd87589d421fc6))
+
 ## [1.35.1](https://github.com/ForkbombEu/signroom/compare/v1.35.0...v1.35.1) (2025-02-19)
 
 
