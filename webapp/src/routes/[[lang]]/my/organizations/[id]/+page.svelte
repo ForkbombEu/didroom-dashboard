@@ -18,19 +18,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import type { MicroserviceType } from '$lib/microservices';
 
 	export let data;
-	let {
+	$: base = (path: string) => `${$page.url.pathname}${path}`;
+</script>
+
+<OrganizationLayout org={data.organization}>
+	{@const {
 		organization,
 		membershipRequests,
 		microservices,
 		issuanceFlows,
 		verificationFlows,
 		templates
-	} = data;
-
-	$: base = (path: string) => `${$page.url.pathname}${path}`;
-</script>
-
-<OrganizationLayout org={data.organization}>
+	} = data}
 	<div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
 		<PageCard class="!space-y-4">
 			<HomeSection
