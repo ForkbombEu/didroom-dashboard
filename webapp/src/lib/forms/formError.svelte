@@ -8,23 +8,26 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { Alert } from 'flowbite-svelte';
 	import { getFormContext } from './form.svelte';
 	import { m } from '$lib/i18n';
-	import { pipe } from 'effect';
 
 	const { superform } = getFormContext();
 	const { message, allErrors } = superform;
 
 	$: error = $allErrors.at(0);
 
-	function getTranslationStringByName(messageName: string) {
-		return Object.entries(m).find(([stringName]) => stringName == messageName)?.[1];
-	}
-
-	function normalizeErrorTitle(message: string) {
-		return message.toLowerCase().replace('.', '');
-	}
-
 	function getErrorTranslation(message: string) {
-		return pipe(message, normalizeErrorTitle, getTranslationStringByName) as () => string;
+		return Object.entries(m).find(
+			([stringName]) =>
+				stringName.toLowerCase() == message.toLowerCase() ||
+				stringName.toLowerCase() == message.toLowerCase().slice(0, -1)
+			/**
+			 * Conversion to lowercase is needed because sometimes pocketbase makes the first letter of the error uppercase
+			 * .slice(0,-1) is needed because the last item sometimes is a "."
+			 */
+		)?.[1] as () => string;
+		/**
+		 * Type conversion is needed as some message functions can accept parameters,
+		 * but this is not the case.
+		 */
 	}
 </script>
 
