@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { ArrowUpRight } from 'svelte-heros-v2';
 
 	export let data;
-	let { publicKeys } = data;
+	$: ({ publicKeys } = data);
 </script>
 
 <div class="mx-auto max-w-xl space-y-8 p-8">

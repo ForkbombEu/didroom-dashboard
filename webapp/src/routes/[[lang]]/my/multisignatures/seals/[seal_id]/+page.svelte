@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { getKeyringFromLocalStorage } from '$lib/keypairoom/keypair';
 
 	export let data;
-	let { seal, issuer, multisignature } = data;
+	$: ({ seal, issuer, multisignature } = data);
 
 	async function sign() {
 		try {

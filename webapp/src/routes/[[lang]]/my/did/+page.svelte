@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { m } from '$lib/i18n';
 
 	export let data;
-	const did = JSON.stringify(data.did, null, 2);
+	$: did = JSON.stringify(data.did, null, 2);
 </script>
 
 <div class="space-y-4 p-4">

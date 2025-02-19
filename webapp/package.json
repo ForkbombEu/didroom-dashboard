@@ -125,6 +125,7 @@
 		"prismjs": "^1.29.0",
 		"qrcode-generator": "^1.4.4",
 		"slugify": "^1.6.6",
+		"sqlite3": "^5.1.7",
 		"svelte-boring-avatars": "^1.2.6",
 		"svelte-heros": "^6.0.3",
 		"svelte-persisted-store": "^0.9.1",

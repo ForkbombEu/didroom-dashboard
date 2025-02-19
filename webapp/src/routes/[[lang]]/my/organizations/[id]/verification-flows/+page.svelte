@@ -27,7 +27,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { ProtectedOrgUI } from '$lib/organizations/index.js';
 
 	export let data;
-	let { organization } = data;
+	$: organization = data.organization;
 
 	const recordType = createTypeProp<VerificationFlowsResponse>();
 

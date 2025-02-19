@@ -16,7 +16,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import SectionTitle from '$lib/components/sectionTitle.svelte';
 	import Icon from '$lib/components/icon.svelte';
 	import { page } from '$app/stores';
-	import { Avatar } from 'flowbite-svelte';
 	import { ProtectedOrgUI } from '$lib/organizations';
 	import TemplateSchemaDisplay from '$lib/components/templateSchemaDisplay.svelte';
 	import { assets } from '$app/paths';
@@ -24,13 +23,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	//
 
 	export let data;
-	let { service, organization } = data;
-	let { credential_issuer, credential_template, authorization_server, authorization_template } =
-		service.expand!;
+	$: ({ service, organization } = data);
+	$: ({ credential_issuer, credential_template, authorization_server, authorization_template } =
+		service.expand!);
 
 	//
 
-	const issuanceFlowQr = generateQr(
+	$: issuanceFlowQr = generateQr(
 		createIntentUrl({
 			credential_configuration_ids: [service.type_name],
 			credential_issuer: credential_issuer.endpoint,
@@ -49,7 +48,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	// 	downloadBlob(imgBlob, `credential-issuance-qr.png`);
 	// }
 
-	let microservicesTemplates = [
+	$: microservicesTemplates = [
 		{
 			label: m.Credential_template(),
 			name: credential_template?.name,
