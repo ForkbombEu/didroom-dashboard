@@ -37,8 +37,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	//
 
 	export let data;
-	$: organization = data.organization;
-	$: userRole = data.userRole;
+	$: ({ organization, userRole } = data);
 
 	type AuthorizationWithUser = OrgAuthorizationsResponse<{
 		user: UsersResponse;

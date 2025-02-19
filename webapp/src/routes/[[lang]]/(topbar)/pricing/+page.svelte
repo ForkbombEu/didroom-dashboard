@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { ArrowLeft } from 'svelte-heros-v2';
 
 	export let data;
-	let { content } = data;
+	$: ({ content } = data);
 </script>
 
 <div class="mx-auto max-w-4xl p-4">

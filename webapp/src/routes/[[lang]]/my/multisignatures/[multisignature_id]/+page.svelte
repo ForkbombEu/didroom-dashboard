@@ -20,14 +20,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { addSignaturesToReflowSeal, verifySignedReflowSeal } from './logic.js';
 
 	export let data;
-	let { multisignature, seals } = data;
+	$: ({ multisignature, seals } = data);
 
-	let participants = seals.map((s) => s.expand?.owner.name);
-	let issuer = multisignature.expand?.coconut_credential_issuer;
-	let owner = multisignature.expand?.owner!;
+	$: participants = seals.map((s) => s.expand?.owner.name);
+	$: issuer = multisignature.expand?.coconut_credential_issuer;
+	$: owner = multisignature.expand?.owner!;
 
-	let missingSeals = seals.some((s) => s.status == MultisignatureSealsStatusOptions.pending);
-	let allGood = seals.every((s) => s.status == MultisignatureSealsStatusOptions.signed);
+	$: missingSeals = seals.some((s) => s.status == MultisignatureSealsStatusOptions.pending);
+	$: allGood = seals.every((s) => s.status == MultisignatureSealsStatusOptions.signed);
 	let verified = false;
 
 	async function completeMultisignature() {

@@ -15,19 +15,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { Badge } from 'flowbite-svelte';
 	import { templatesColors } from '$lib/templates';
 	import MicroserviceBadge from '$lib/microservices/microserviceBadge.svelte';
-	import type { MicroserviceType } from '$lib/microservices';
 
 	export let data;
-	let {
+	$: base = (path: string) => `${$page.url.pathname}${path}`;
+
+	$: ({
 		organization,
 		membershipRequests,
 		microservices,
 		issuanceFlows,
 		verificationFlows,
 		templates
-	} = data;
-
-	$: base = (path: string) => `${$page.url.pathname}${path}`;
+	} = data);
 </script>
 
 <OrganizationLayout org={data.organization}>
