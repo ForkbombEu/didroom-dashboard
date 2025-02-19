@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/ForkbombEu/signroom/compare/v1.35.2...v1.36.0) (2025-02-19)
+
+
+### Features
+
+* add chat support ([#984](https://github.com/ForkbombEu/signroom/issues/984)) ([635068e](https://github.com/ForkbombEu/signroom/commit/635068edd94d3cd5b899198e959183ee970564db))
+
 ## [1.35.2](https://github.com/ForkbombEu/signroom/compare/v1.35.1...v1.35.2) (2025-02-19)
 
 
