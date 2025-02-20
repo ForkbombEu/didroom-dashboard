@@ -68,7 +68,7 @@ export function setupDockerCompose(
 	const msName = createSlug(ms.name);
 	const msUrl = cleanUrl(ms.endpoint);
 	const serviceFullName = `${serviceNamePrefix[msType]}_${msName}`;
-	dockerComposeFiles.dockerCompose += dockerComposeTemplate(serviceFullName, msUrl, msType);
+	dockerComposeFiles.dockerCompose += dockerComposeTemplate(serviceFullName);
 	dockerComposeFiles.dependsOn += `\n      ${serviceFullName}:\n        condition: service_started`;
 	const [protocol, _, host] = msUrl.split('/');
 	const msBaseUrl = protocol + '//' + host;
@@ -78,30 +78,13 @@ export function setupDockerCompose(
 }
 
 function dockerComposeTemplate(
-	serviceFullName: string,
-	msUrl: string,
-	msType: MicroserviceFolder
+	serviceFullName: string
 ): string {
-	let entrypoint = '';
-	if (msType == 'authz_server')
-		entrypoint = '\n    entrypoint: sh -c "make -C /app authorize && ./ncr"';
 	return `
   ${serviceFullName}:
     container_name: ${serviceFullName}
-    image: ghcr.io/forkbombeu/didroom_microservices:stable${entrypoint}
-    environment:
-      MS_URL: ${msUrl}
-      MS_NAME: ${serviceFullName}
-      ZENCODE_DIR: /app/${msType}
-      PUBLIC_DIR: /app/public/${msType}
-      BASEPATH: /${msType}
+    build: ./${serviceFullName}
     volumes:
-    - type: bind
-      source: ./${serviceFullName}/${msType}
-      target: /app/${msType}
-    - type: bind
-      source: ./${serviceFullName}/public
-      target: /app/public
     - type: bind
       source: ~/.config/didroom
       target: /root/.config/didroom

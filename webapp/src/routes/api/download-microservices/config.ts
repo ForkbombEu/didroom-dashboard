@@ -19,7 +19,8 @@ export const config = {
 			credential_issuer: 'openid-credential-issuer',
 			relying_party: 'openid-relying-party'
 		},
-		env_example: '.env.example'
+		env_example: '.env.example',
+		dockerfile: 'Dockerfile'
 	},
 	file_extensions: {
 		zen: 'zen',

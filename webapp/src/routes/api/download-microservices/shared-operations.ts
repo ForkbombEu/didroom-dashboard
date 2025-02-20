@@ -132,3 +132,41 @@ export function delete_tests(zip: AdmZip) {
 	const tests_path = prepend_zip_root_folder(zip, 'tests/');
 	zip.deleteFile(tests_path);
 }
+
+//
+
+export function add_microservice_dockerfile(zip: AdmZip, microservice: Microservice, microservice_folder: MicroserviceFolder) {
+	update_zip_entry(zip, config.file_names.dockerfile, () => create_microservice_dockerfile(microservice_folder, microservice));
+}
+
+function create_microservice_dockerfile(microservice_folder: MicroserviceFolder, microservice: Microservice): string {
+	return microservice_dockerfile_template(
+		microservice_folder,
+		cleanUrl(microservice.endpoint),
+		createSlug(microservice.name)
+	);
+}
+
+function microservice_dockerfile_template(microservice: MicroserviceFolder, msUrl: string, msName: string) {
+	const serviceNamePrefix = {
+		authz_server: 'as',
+		credential_issuer: 'ci',
+		relying_party: 'rp'
+	};
+	const fullName = serviceNamePrefix[microservice] + '_' + msName;
+	const dockerfile = `FROM ghcr.io/forkbombeu/didroom_microservices:stable
+
+ENV ZENCODE_DIR=/app/${microservice}
+ENV PUBLIC_DIR=/app/public/${microservice}
+ENV BASEPATH=/${microservice}
+ENV MS_URL=${msUrl}
+ENV MS_NAME=${fullName}
+
+COPY ${microservice} /app/${microservice}
+COPY public/${microservice} /app/public/${microservice}
+`;
+	if (microservice == config.folder_names.microservices.authz_server) {
+		return dockerfile + '\nRUN make -C /app authorize\n';
+	}
+	return dockerfile;
+}

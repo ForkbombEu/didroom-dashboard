@@ -16,6 +16,7 @@ import type { ObjectSchema } from '$lib/jsonSchema/types';
 
 import {
 	add_credential_custom_code,
+	add_microservice_dockerfile,
 	add_microservice_env,
 	delete_tests,
 	delete_unused_folders,
@@ -48,7 +49,8 @@ export function createAuthorizationServerZip(
 	);
 	add_credentials_custom_code(zip, authorization_server_related_data);
 	add_microservice_env(zip, authorization_server);
-	delete_unused_folders(zip, 'authz_server');
+	add_microservice_dockerfile(zip, authorization_server, config.folder_names.microservices.authz_server);
+	delete_unused_folders(zip, config.folder_names.microservices.authz_server);
 	delete_tests(zip);
 
 	return zip;
@@ -92,7 +94,7 @@ function create_authorization_server_well_known(
 ): WellKnown {
 	const authorization_server_url = formatMicroserviceUrl(
 		authorization_server.endpoint,
-		'authz_server'
+		config.folder_names.microservices.authz_server
 	);
 	const scopes_supported = authorization_server_related_data.credentials.map(
 		({ issuance_flow }) => issuance_flow.type_name
@@ -117,7 +119,7 @@ function add_credentials_custom_code(
 		({ issuance_flow, authorization_template }) => {
 			add_credential_custom_code(
 				zip,
-				'authz_server',
+				config.folder_names.microservices.authz_server,
 				issuance_flow.type_name,
 				authorization_template
 			);
@@ -131,7 +133,7 @@ function add_authorization_template_schema(
 	credential_type_name: string,
 	template: TemplatesResponse
 ) {
-	const basePath = get_credential_custom_code_path(zip, 'authz_server', credential_type_name);
+	const basePath = get_credential_custom_code_path(zip, config.folder_names.microservices.authz_server, credential_type_name);
 	const schema = template.schema as ObjectSchema;
 	zip.addFile(`${basePath}.schema.json`, Buffer.from(JSON.stringify(schema, null, 4)));
 }
