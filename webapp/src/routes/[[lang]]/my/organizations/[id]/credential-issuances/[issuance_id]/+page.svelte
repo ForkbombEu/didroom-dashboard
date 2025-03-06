@@ -32,10 +32,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	$: issuanceFlowQr = generateQr(
 		createIntentUrl({
 			credential_configuration_ids: [service.type_name],
-			credential_issuer: credential_issuer.endpoint,
+			credential_issuer: credential_issuer.endpoint.endsWith('/credential_issuer') ? credential_issuer.endpoint : `${credential_issuer.endpoint}/credential_issuer`,
 			grants: {
 				authorization_code: {
-					authorization_server: authorization_server.endpoint
+					authorization_server: authorization_server.endpoint.endsWith('/authz_server') ? authorization_server.endpoint : `${authorization_server.endpoint}/authz_server`,
 				}
 			}
 		})
