@@ -66,15 +66,16 @@ export function setupDockerCompose(
 	msType: MicroserviceFolder
 ): void {
 	const msName = createSlug(ms.name);
-	const msUrl = cleanUrl(ms.endpoint);
+	let msUrl = cleanUrl(ms.endpoint);
 	const serviceFullName = `${serviceNamePrefix[msType]}_${msName}`;
 	dockerComposeFiles.dockerCompose += dockerComposeTemplate(serviceFullName);
 	dockerComposeFiles.dependsOn += `\n      ${serviceFullName}:\n        condition: service_started`;
-	const [protocol, _, host] = msUrl.split('/');
-	const msBaseUrl = protocol + '//' + host;
-	if (!dockerComposeFiles.caddyfile[msBaseUrl])
-		dockerComposeFiles.caddyfile[msBaseUrl] = caddyfileTemplate(serviceFullName, msType);
-	else dockerComposeFiles.caddyfile[msBaseUrl] += caddyfileTemplate(serviceFullName, msType);
+	if (msUrl.endsWith(`/${msType}`)) {
+		msUrl += msUrl.slice(0, -msType.length-1);
+	}
+	if (!dockerComposeFiles.caddyfile[msUrl])
+		dockerComposeFiles.caddyfile[msUrl] = caddyfileTemplate(serviceFullName, msType);
+	else dockerComposeFiles.caddyfile[msUrl] += caddyfileTemplate(serviceFullName, msType);
 }
 
 function dockerComposeTemplate(
