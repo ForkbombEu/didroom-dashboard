@@ -13,6 +13,7 @@ import type {
 } from '$lib/pocketbase/types';
 import type { DownloadMicroservicesRequestBody } from '.';
 import type { ObjectSchema } from '$lib/jsonSchema/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 
 import {
 	add_credential_custom_code,
@@ -20,7 +21,6 @@ import {
 	add_microservice_env,
 	delete_tests,
 	delete_unused_folders,
-	formatMicroserviceUrl,
 	get_credential_custom_code_path,
 	type WellKnown
 } from './shared-operations';

@@ -18,6 +18,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { page } from '$app/stores';
 	import { ProtectedOrgUI } from '$lib/organizations';
 	import TemplateSchemaDisplay from '$lib/components/templateSchemaDisplay.svelte';
+	import { formatMicroserviceUrl } from '$lib/microservices';
 	import { assets } from '$app/paths';
 
 	//
@@ -32,10 +33,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	$: issuanceFlowQr = generateQr(
 		createIntentUrl({
 			credential_configuration_ids: [service.type_name],
-			credential_issuer: credential_issuer.endpoint.endsWith('/credential_issuer') ? credential_issuer.endpoint : `${credential_issuer.endpoint}/credential_issuer`,
+			credential_issuer: formatMicroserviceUrl(credential_issuer.endpoint, 'credential_issuer'),
 			grants: {
 				authorization_code: {
-					authorization_server: authorization_server.endpoint.endsWith('/authz_server') ? authorization_server.endpoint : `${authorization_server.endpoint}/authz_server`,
+					authorization_server: formatMicroserviceUrl(authorization_server.endpoint, 'authz_server'),
 				}
 			}
 		})

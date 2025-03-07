@@ -12,10 +12,11 @@ import type {
 	TemplatesResponse
 } from '$lib/pocketbase/types';
 import type { ValueOf } from '$lib/utils/types';
+import { cleanUrl } from '$lib/microservices';
 
 import { config } from './config';
 import { get_zip_root_folder, prepend_zip_root_folder, update_zip_entry } from './utils/zip';
-import { cleanUrl, createSlug } from './utils/strings';
+import { createSlug } from './utils/strings';
 
 /* Types */
 
@@ -113,18 +114,6 @@ MS_URL=${MS_URL}
 }
 
 type Microservice = IssuersRecord | RelyingPartiesRecord | AuthorizationServersRecord;
-
-//
-
-export function formatMicroserviceUrl(url: string, microservice: MicroserviceFolder) {
-	return pipe(url, cleanUrl, (url) => appendMicroserviceFolderToUrl(url, microservice));
-}
-
-function appendMicroserviceFolderToUrl(url: string, microservice: MicroserviceFolder) {
-	const toAppend = `/${microservice}`;
-	if (!url.endsWith(toAppend)) return `${url}${toAppend}`;
-	else return url;
-}
 
 //
 

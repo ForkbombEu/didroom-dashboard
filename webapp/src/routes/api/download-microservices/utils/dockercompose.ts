@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import AdmZip from 'adm-zip';
-import { cleanUrl, createSlug } from './strings';
+import { createSlug } from './strings';
 import type {
 	AuthorizationServersResponse,
 	IssuersResponse,
 	RelyingPartiesResponse
 } from '$lib/pocketbase/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 import type { MicroserviceFolder } from '../shared-operations';
 
 type DockerFiles = {
@@ -66,13 +67,10 @@ export function setupDockerCompose(
 	msType: MicroserviceFolder
 ): void {
 	const msName = createSlug(ms.name);
-	let msUrl = cleanUrl(ms.endpoint);
+	const msUrl = formatMicroserviceUrl(ms.endpoint, msType).slice(0, -msType.length-1);
 	const serviceFullName = `${serviceNamePrefix[msType]}_${msName}`;
 	dockerComposeFiles.dockerCompose += dockerComposeTemplate(serviceFullName);
 	dockerComposeFiles.dependsOn += `\n      ${serviceFullName}:\n        condition: service_started`;
-	if (msUrl.endsWith(`/${msType}`)) {
-		msUrl += msUrl.slice(0, -msType.length-1);
-	}
 	if (!dockerComposeFiles.caddyfile[msUrl])
 		dockerComposeFiles.caddyfile[msUrl] = caddyfileTemplate(serviceFullName, msType);
 	else dockerComposeFiles.caddyfile[msUrl] += caddyfileTemplate(serviceFullName, msType);

@@ -13,6 +13,7 @@ import type {
 	TemplatesResponse
 } from '$lib/pocketbase/types';
 import type { ObjectSchema } from '$lib/jsonSchema/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
@@ -21,7 +22,6 @@ import {
 	add_microservice_env,
 	delete_tests,
 	delete_unused_folders,
-	formatMicroserviceUrl,
 	get_credential_custom_code_path,
 	type WellKnown
 } from './shared-operations';

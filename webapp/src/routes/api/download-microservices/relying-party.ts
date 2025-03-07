@@ -7,6 +7,7 @@ import { String as S, pipe, Array as A } from 'effect';
 import _ from 'lodash/fp';
 
 import type { IssuersResponse, RelyingPartiesResponse } from '$lib/pocketbase/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
@@ -14,7 +15,6 @@ import {
 	add_microservice_env,
 	delete_tests,
 	delete_unused_folders,
-	formatMicroserviceUrl,
 	type WellKnown
 } from './shared-operations';
 import { DEFAULT_LOCALE } from './utils/locale';
