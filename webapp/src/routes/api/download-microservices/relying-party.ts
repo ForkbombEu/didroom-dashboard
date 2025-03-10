@@ -7,13 +7,14 @@ import { String as S, pipe, Array as A } from 'effect';
 import _ from 'lodash/fp';
 
 import type { IssuersResponse, RelyingPartiesResponse } from '$lib/pocketbase/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
+	add_microservice_dockerfile,
 	add_microservice_env,
 	delete_tests,
 	delete_unused_folders,
-	formatMicroserviceUrl,
 	type WellKnown
 } from './shared-operations';
 import { DEFAULT_LOCALE } from './utils/locale';
@@ -30,7 +31,8 @@ export function create_relying_party_zip(
 	const zip = new AdmZip(zip_buffer);
 	edit_relying_party_well_known(zip, relying_party, request_body.credential_issuers);
 	add_microservice_env(zip, relying_party);
-	delete_unused_folders(zip, 'relying_party');
+	add_microservice_dockerfile(zip, relying_party, config.folder_names.microservices.relying_party);
+	delete_unused_folders(zip, config.folder_names.microservices.relying_party);
 	delete_tests(zip);
 	return zip;
 }
@@ -42,11 +44,11 @@ function create_relying_party_well_known(
 	trusted_credential_issuers: IssuersResponse[],
 	default_well_known: WellKnown
 ): WellKnown {
-	const relying_party_url = formatMicroserviceUrl(relying_party.endpoint, 'relying_party');
+	const relying_party_url = formatMicroserviceUrl(relying_party.endpoint, config.folder_names.microservices.relying_party);
 	const trusted_credential_issuers_urls = pipe(
 		trusted_credential_issuers,
 		A.map((issuer) => issuer.endpoint),
-		A.map((url) => formatMicroserviceUrl(url, 'credential_issuer'))
+		A.map((url) => formatMicroserviceUrl(url, config.folder_names.microservices.credential_issuer))
 	);
 
 	return pipe(

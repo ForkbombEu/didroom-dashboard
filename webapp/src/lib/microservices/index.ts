@@ -27,3 +27,19 @@ export function getRandomMicroservicePort() {
 	const MAX_PORT = 34000;
 	return MIN_PORT + Math.floor(Math.random() * (MAX_PORT - MIN_PORT));
 }
+
+//
+
+export function cleanUrl(url: string) {
+	return url.replace(/\/$/, '');
+}
+
+export function formatMicroserviceUrl(url: string, microservice: string) {
+	return appendMicroserviceFolderToUrl(cleanUrl(url), microservice);
+}
+
+function appendMicroserviceFolderToUrl(url: string, microservice: string) {
+	const toAppend = `/${microservice}`;
+	if (!url.endsWith(toAppend)) return `${url}${toAppend}`;
+	else return url;
+}

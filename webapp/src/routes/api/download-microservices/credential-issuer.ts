@@ -13,14 +13,15 @@ import type {
 	TemplatesResponse
 } from '$lib/pocketbase/types';
 import type { ObjectSchema } from '$lib/jsonSchema/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
 	add_credential_custom_code,
+	add_microservice_dockerfile,
 	add_microservice_env,
 	delete_tests,
 	delete_unused_folders,
-	formatMicroserviceUrl,
 	get_credential_custom_code_path,
 	type WellKnown
 } from './shared-operations';
@@ -50,7 +51,8 @@ export function create_credential_issuer_zip(
 	edit_credential_issuer_well_known(zip, credential_issuer, credential_issuer_related_data);
 	add_credentials_custom_code(zip, credential_issuer_related_data.issuance_flows);
 	add_microservice_env(zip, credential_issuer);
-	delete_unused_folders(zip, 'credential_issuer');
+	add_microservice_dockerfile(zip, credential_issuer, config.folder_names.microservices.credential_issuer);
+	delete_unused_folders(zip, config.folder_names.microservices.credential_issuer);
 	delete_tests(zip);
 
 	return zip;
@@ -108,10 +110,10 @@ function create_credential_issuer_well_known(
 	const { authorization_servers, issuance_flows } = credential_issuer_related_data;
 	const credential_issuer_url = formatMicroserviceUrl(
 		credential_issuer.endpoint,
-		'credential_issuer'
+		config.folder_names.microservices.credential_issuer
 	);
 	const authorization_servers_urls = authorization_servers.map((a) =>
-		formatMicroserviceUrl(a.endpoint, 'authz_server')
+		formatMicroserviceUrl(a.endpoint, config.folder_names.microservices.authz_server)
 	);
 	const credentialConfigurationsSupported = _.flow(
 		_.map(convert_issuance_flow_to_credential_configuration),
@@ -204,7 +206,7 @@ function add_credentials_custom_code(zip: AdmZip, issuance_flows: IssuanceFlow[]
 		A.forEach((issuance_flow) => {
 			add_credential_custom_code(
 				zip,
-				'credential_issuer',
+				config.folder_names.microservices.credential_issuer,
 				issuance_flow.type_name,
 				issuance_flow.template
 			);
@@ -217,7 +219,7 @@ function add_credential_time(zip: AdmZip, issuance_flow: ServicesResponse<Expira
 	if (!issuance_flow.expiration) return;
 	const base_path = get_credential_custom_code_path(
 		zip,
-		'credential_issuer',
+		config.folder_names.microservices.credential_issuer,
 		issuance_flow.type_name
 	);
 	const path = `${base_path}.${config.file_extensions.time}`;

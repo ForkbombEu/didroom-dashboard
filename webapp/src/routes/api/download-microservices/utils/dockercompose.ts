@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import AdmZip from 'adm-zip';
-import { cleanUrl, createSlug } from './strings';
+import { createSlug } from './strings';
 import type {
 	AuthorizationServersResponse,
 	IssuersResponse,
 	RelyingPartiesResponse
 } from '$lib/pocketbase/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 import type { MicroserviceFolder } from '../shared-operations';
 
 type DockerFiles = {
@@ -66,42 +67,23 @@ export function setupDockerCompose(
 	msType: MicroserviceFolder
 ): void {
 	const msName = createSlug(ms.name);
-	const msUrl = cleanUrl(ms.endpoint);
+	const msUrl = formatMicroserviceUrl(ms.endpoint, msType).slice(0, -msType.length-1);
 	const serviceFullName = `${serviceNamePrefix[msType]}_${msName}`;
-	dockerComposeFiles.dockerCompose += dockerComposeTemplate(serviceFullName, msUrl, msType);
+	dockerComposeFiles.dockerCompose += dockerComposeTemplate(serviceFullName);
 	dockerComposeFiles.dependsOn += `\n      ${serviceFullName}:\n        condition: service_started`;
-	const [protocol, _, host] = msUrl.split('/');
-	const msBaseUrl = protocol + '//' + host;
-	if (!dockerComposeFiles.caddyfile[msBaseUrl])
-		dockerComposeFiles.caddyfile[msBaseUrl] = caddyfileTemplate(serviceFullName, msType);
-	else dockerComposeFiles.caddyfile[msBaseUrl] += caddyfileTemplate(serviceFullName, msType);
+	if (!dockerComposeFiles.caddyfile[msUrl])
+		dockerComposeFiles.caddyfile[msUrl] = caddyfileTemplate(serviceFullName, msType);
+	else dockerComposeFiles.caddyfile[msUrl] += caddyfileTemplate(serviceFullName, msType);
 }
 
 function dockerComposeTemplate(
-	serviceFullName: string,
-	msUrl: string,
-	msType: MicroserviceFolder
+	serviceFullName: string
 ): string {
-	let entrypoint = '';
-	if (msType == 'authz_server')
-		entrypoint = '\n    entrypoint: sh -c "make -C /app authorize && ./ncr"';
 	return `
   ${serviceFullName}:
     container_name: ${serviceFullName}
-    image: ghcr.io/forkbombeu/didroom_microservices:stable${entrypoint}
-    environment:
-      MS_URL: ${msUrl}
-      MS_NAME: ${serviceFullName}
-      ZENCODE_DIR: /app/${msType}
-      PUBLIC_DIR: /app/public/${msType}
-      BASEPATH: /${msType}
+    build: ./${serviceFullName}
     volumes:
-    - type: bind
-      source: ./${serviceFullName}/${msType}
-      target: /app/${msType}
-    - type: bind
-      source: ./${serviceFullName}/public
-      target: /app/public
     - type: bind
       source: ~/.config/didroom
       target: /root/.config/didroom
