@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/ForkbombEu/signroom/compare/v1.36.0...v1.36.1) (2025-03-10)
+
+
+### Bug Fixes
+
+* **download-microservices:** handle the ms urls in the correct way ([#988](https://github.com/ForkbombEu/signroom/issues/988)) ([19db0ce](https://github.com/ForkbombEu/signroom/commit/19db0cee304b58db8e15e6d292372d61d8875db3))
+
 # [1.36.0](https://github.com/ForkbombEu/signroom/compare/v1.35.2...v1.36.0) (2025-02-19)
 
 
