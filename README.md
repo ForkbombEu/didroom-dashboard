@@ -156,7 +156,7 @@ Execute a transaction with some amount
 ### GET /token/${request.token}/${request.owner}
 
 Retrieves the actual value of the token type for the specified owner
-
+...
 -->
 
 **[🔝 back to top](#toc)**
