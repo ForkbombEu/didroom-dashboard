@@ -29,38 +29,41 @@ export function mergeObjectSchemasIntoClaims(
 
 export function objectSchemaToClaims(
 	schema: ObjectSchema,
-	locale = DEFAULT_LOCALE
+	locale = DEFAULT_LOCALE,
+	path: string[] = []
 ): Claims {
-	const claims: Claims = {};
+	const claims: Claims = [];
 
-	for (const [propertyName, property] of Object.entries(schema.properties)) {
-		//
-		if (property.type != 'object' && property.type != 'array') {
-			//
-			const prop: ClaimsProperty = {
-				mandatory: Boolean(schema.required?.includes(propertyName)),
-				display: [{ locale, name: property.title ?? propertyName }]
-			};
-			claims[propertyName] = prop;
-		}
-		//
-		else if (property.type === 'object') {
-			claims[propertyName] = objectSchemaToClaims(property, locale);
-		}
-		//
-		else {
-			console.log(`Property not handled:`);
-			console.log(JSON.stringify(property, null, 2));
+	function recursive(
+		node: ObjectSchema,
+		path: string[] = []
+	) : void {
+		for (const [key, value] of Object.entries(node.properties)) {
+			const newPath = [...path, key];
+			const isMandatory = node.required?.includes(key) ?? false;
+			if (value.type === 'object') {
+				recursive(value, newPath);
+			} else if (value.type !== 'array') {
+				const prop: ClaimsProperty = {
+					mandatory: isMandatory,
+					display: [{ locale, name: value.title ?? key }],
+					path: newPath
+				};
+				claims.push(prop);
+			} else {
+				console.log(`Property not handled:`);
+				console.log(JSON.stringify(value, null, 2));
+			}
 		}
 	}
+
+	recursive(schema, path);
 	return claims;
 }
 
 // https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-wg-draft.html#name-credential-issuer-metadata-2
 
-export type Claims = {
-	[key: string]: Claims | ClaimsProperty;
-};
+export type Claims = ClaimsProperty[];
 
 const DisplayPropertiesSchema = z.object({
 	name: z.string(),
@@ -74,12 +77,14 @@ type DisplayProperties = {
 
 const ClaimsPropertySchema = z.object({
 	mandatory: z.boolean(),
-	display: z.array(DisplayPropertiesSchema).optional()
+	display: z.array(DisplayPropertiesSchema).optional(),
+	path: z.array(z.string())
 });
 
 export type ClaimsProperty = {
 	mandatory?: boolean;
 	display?: DisplayProperties[];
+	path: string[];
 	// TODO - Handle "type" property if necessary
 };
 
@@ -117,7 +122,7 @@ export function flattenClaimsProperties(
 /* */
 
 const credential_configuration_template = {
-	format: 'vc+sd-jwt',
+	format: 'dc+sd-jwt',
 	cryptographic_binding_methods_supported: ['jwk', 'did:dyne:sandbox.signroom'],
 	credential_signing_alg_values_supported: ['ES256'],
 	proof_types_supported: {
@@ -140,7 +145,7 @@ const credential_configuration_template = {
 		}
 	],
 	vct: '',
-	claims: {}
+	claims: []
 };
 
 export function get_credential_configuration_template() {
