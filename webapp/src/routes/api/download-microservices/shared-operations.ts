@@ -17,6 +17,7 @@ import { cleanUrl } from '$lib/microservices';
 import { config } from './config';
 import { get_zip_root_folder, prepend_zip_root_folder, update_zip_entry } from './utils/zip';
 import { createSlug } from './utils/strings';
+import { PUBLIC_DIDROOM_MICROSERVICES_BRANCH } from '$env/static/public';
 
 /* Types */
 
@@ -142,8 +143,9 @@ function microservice_dockerfile_template(microservice: MicroserviceFolder, msUr
 		credential_issuer: 'ci',
 		relying_party: 'rp'
 	};
+	const msDockerVersion = PUBLIC_DIDROOM_MICROSERVICES_BRANCH === 'main' ? 'latest' : 'stable';
 	const fullName = serviceNamePrefix[microservice] + '_' + msName;
-	const dockerfile = `FROM ghcr.io/forkbombeu/didroom_microservices:stable
+	const dockerfile = `FROM ghcr.io/forkbombeu/didroom_microservices:${msDockerVersion}
 
 ENV ZENCODE_DIR=/app/${microservice}
 ENV PUBLIC_DIR=/app/public/${microservice}
