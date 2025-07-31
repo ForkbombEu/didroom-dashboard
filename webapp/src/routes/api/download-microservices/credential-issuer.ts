@@ -139,6 +139,14 @@ function create_credential_issuer_well_known(
 	) as WellKnown;
 }
 
+function conditional_set(
+	condition: boolean,
+	path: string,
+	value: any
+): (obj: object) => object {
+	return condition ? _.set(path, value) : _.identity
+};
+
 function convert_issuance_flow_to_credential_configuration(
 	issuance_flow: IssuanceFlow
 ): CredentialConfiguration {
@@ -158,7 +166,8 @@ function convert_issuance_flow_to_credential_configuration(
 			description: issuance_flow.description
 		}),
 
-		_.set('vct', issuance_flow.type_name),
+		conditional_set(issuance_flow.cryptography === 'sd-jwt', 'vct', issuance_flow.type_name),
+		conditional_set(issuance_flow.cryptography === 'W3C-VC', 'credentials_definition.type[1]', issuance_flow.type_name),
 
 		_.set(
 			'claims',
