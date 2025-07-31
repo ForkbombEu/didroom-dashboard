@@ -154,8 +154,13 @@ ENV MS_NAME=${fullName}
 COPY ${microservice} /app/${microservice}
 COPY public/${microservice} /app/public/${microservice}
 `;
-	if (microservice == config.folder_names.microservices.authz_server) {
-		return dockerfile + '\nRUN make -C /app authorize\n';
+
+	switch (microservice) {
+		case config.folder_names.microservices.authz_server:
+			return dockerfile + '\nRUN make -C /app authorize\n';
+		case config.folder_names.microservices.credential_issuer:
+			return dockerfile + '\nRUN make -C /app credential\n';
+		default:
+			return dockerfile;
 	}
-	return dockerfile;
 }
