@@ -132,7 +132,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		? m.Create_issuance_flow()
 		: m.Update_issuance_flow();
 
-	const credentialTypeOptions: string[] = Object.values(ServicesCryptographyOptions);
+	// subset of ServicesCryptographyOptions
+	const credentialTypeOptions: string[] = [ServicesCryptographyOptions['sd-jwt'], ServicesCryptographyOptions['W3C-VC']];
 
 	const issuersType = createTypeProp<IssuersResponse>();
 	const authorizationServersType = createTypeProp<AuthorizationServersResponse>();
@@ -239,7 +240,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				options={{
 					label: m.Cryptography(),
 					options: credentialTypeOptions,
-					disabled: true
+					disabled: false
 				}}
 			/>
 			<FieldHelpText text={m.credential_type_help_text()} />
