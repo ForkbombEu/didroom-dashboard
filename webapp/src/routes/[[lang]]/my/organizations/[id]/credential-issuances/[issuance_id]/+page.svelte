@@ -141,7 +141,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					<Button
 						outline
 						target="_blank"
-						href="https://forkbombeu.github.io/DIDroom/solution.html#wallet-holder-app"
+						href="https://didroom.com/guides/Wallet/wallet.html"
 					>
 						{m.Help()}
 						<Icon src={QuestionMarkCircle} ml></Icon>

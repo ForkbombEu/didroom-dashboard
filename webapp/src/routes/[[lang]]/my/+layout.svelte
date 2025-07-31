@@ -216,7 +216,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 						{
 							text: 'Help',
 							icon: QuestionMarkCircle,
-							href: 'https://forkbombeu.github.io/DIDroom/intro.html'
+							href: 'https://didroom.com/get_started.html'
 						}
 					]}
 				/>
