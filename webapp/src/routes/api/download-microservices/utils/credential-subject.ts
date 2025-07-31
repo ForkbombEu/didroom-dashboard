@@ -151,7 +151,7 @@ const credential_configuration_template = {
 	'W3C-VC': {
 		format: 'ldp_vc',
 		cryptographic_binding_methods_supported: ['jwk', 'did:dyne:sandbox.signroom'],
-		credential_signing_alg_values_supported: ['Es256RfcSignature2019'],
+		credential_signing_alg_values_supported: ['Ed25519Signature2018'],
 		proof_types_supported: {
 			jwt: {
 				proof_signing_alg_values_supported: ['ES256']
