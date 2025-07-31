@@ -122,32 +122,70 @@ export function flattenClaimsProperties(
 /* */
 
 const credential_configuration_template = {
-	format: 'dc+sd-jwt',
-	cryptographic_binding_methods_supported: ['jwk', 'did:dyne:sandbox.signroom'],
-	credential_signing_alg_values_supported: ['ES256'],
-	proof_types_supported: {
-		jwt: {
-			proof_signing_alg_values_supported: ['ES256']
-		}
+	'sd-jwt': {
+		format: 'dc+sd-jwt',
+		cryptographic_binding_methods_supported: ['jwk', 'did:dyne:sandbox.signroom'],
+		credential_signing_alg_values_supported: ['ES256'],
+		proof_types_supported: {
+			jwt: {
+				proof_signing_alg_values_supported: ['ES256']
+			}
+		},
+		display: [
+			{
+				name: '',
+				locale: '',
+				logo: {
+					url: '',
+					alt_text: '',
+					uri: ''
+				},
+				background_color: '',
+				text_color: '',
+				description: ''
+			}
+		],
+		vct: '',
+		claims: []
 	},
-	display: [
-		{
-			name: '',
-			locale: '',
-			logo: {
-				url: '',
-				alt_text: '',
-				uri: ''
-			},
-			background_color: '',
-			text_color: '',
-			description: ''
+	'W3C-VC': {
+		format: 'ldp_vc',
+		cryptographic_binding_methods_supported: ['jwk', 'did:dyne:sandbox.signroom'],
+		credential_signing_alg_values_supported: ['Es256RfcSignature2019'],
+		proof_types_supported: {
+			jwt: {
+				proof_signing_alg_values_supported: ['ES256']
+			}
+		},
+		display: [
+			{
+				name: '',
+				locale: '',
+				logo: {
+					url: '',
+					alt_text: '',
+					uri: ''
+				},
+				background_color: '',
+				text_color: '',
+				description: ''
+			}
+		],
+		claims: [],
+		credentials_definition: {
+			'@context': [
+				'https://www.w3.org/ns/credentials/v2',
+				'https://www.w3.org/ns/credentials/examples/v2'
+			],
+			type: [
+				'VerifiableCredential'
+			]
 		}
-	],
-	vct: '',
-	claims: []
-};
+	}
+} as const;
 
-export function get_credential_configuration_template() {
-	return _.cloneDeep(credential_configuration_template);
+type SupportedCryptographyOptions = keyof typeof credential_configuration_template;
+
+export function get_credential_configuration_template(cryptography: SupportedCryptographyOptions) {
+	return _.cloneDeep(credential_configuration_template[cryptography]);
 }

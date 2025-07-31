@@ -143,7 +143,7 @@ function convert_issuance_flow_to_credential_configuration(
 	issuance_flow: IssuanceFlow
 ): CredentialConfiguration {
 	return pipe(
-		get_credential_configuration_template(),
+		get_credential_configuration_template(issuance_flow.cryptography as 'sd-jwt' | 'W3C-VC'),
 
 		_.set('display[0]', {
 			name: issuance_flow.display_name,
