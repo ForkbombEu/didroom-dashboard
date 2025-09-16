@@ -21,7 +21,7 @@ type DockerFiles = {
 const serviceNamePrefix = {
 	authz_server: 'as',
 	credential_issuer: 'ci',
-	relying_party: 'rp'
+	verifier: 'v'
 };
 
 export function startDockerCompose(): DockerFiles {

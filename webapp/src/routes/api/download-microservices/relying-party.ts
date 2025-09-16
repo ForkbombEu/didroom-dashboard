@@ -3,90 +3,88 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import AdmZip from 'adm-zip';
-import { String as S, pipe, Array as A } from 'effect';
+import { String as S, pipe, Array as A, Option as O } from 'effect';
 import _ from 'lodash/fp';
 
-import type { IssuersResponse, RelyingPartiesResponse } from '$lib/pocketbase/types';
-import { formatMicroserviceUrl } from '$lib/microservices';
+import type { VerificationFlowsResponse, TemplatesResponse, RelyingPartiesResponse } from '$lib/pocketbase/types';
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
 	add_microservice_dockerfile,
 	add_microservice_env,
 	delete_tests,
-	delete_unused_folders,
-	type WellKnown
+	delete_unused_folders
 } from './shared-operations';
-import { DEFAULT_LOCALE } from './utils/locale';
-import { update_zip_json_entry } from './utils/zip';
+import { update_zip_entry } from './utils/zip';
 import { config } from './config';
 
 /* Main */
 
-export function create_relying_party_zip(
+export function create_verifier_zip(
 	zip_buffer: Buffer,
-	relying_party: RelyingPartiesResponse,
+	verifier: RelyingPartiesResponse,
 	request_body: DownloadMicroservicesRequestBody
 ) {
 	const zip = new AdmZip(zip_buffer);
-	edit_relying_party_well_known(zip, relying_party, request_body.credential_issuers);
-	add_microservice_env(zip, relying_party);
-	add_microservice_dockerfile(zip, relying_party, config.folder_names.microservices.relying_party);
-	delete_unused_folders(zip, config.folder_names.microservices.relying_party);
+	const verifier_related_data = get_verifier_related_data_from_request_body(
+		request_body,
+		verifier
+	);
+	edit_html(zip, verifier_related_data);
+	add_microservice_env(zip, verifier);
+	add_microservice_dockerfile(zip, verifier, config.folder_names.microservices.verifier);
+	delete_unused_folders(zip, config.folder_names.microservices.verifier);
 	delete_tests(zip);
 	return zip;
 }
 
-/* Well known editing */
+/* Data setup */
 
-function create_relying_party_well_known(
-	relying_party: RelyingPartiesResponse,
-	trusted_credential_issuers: IssuersResponse[],
-	default_well_known: WellKnown
-): WellKnown {
-	const relying_party_url = formatMicroserviceUrl(relying_party.endpoint, config.folder_names.microservices.relying_party);
-	const trusted_credential_issuers_urls = pipe(
-		trusted_credential_issuers,
-		A.map((issuer) => issuer.endpoint),
-		A.map((url) => formatMicroserviceUrl(url, config.folder_names.microservices.credential_issuer))
-	);
+type VerifierRelatedData = {
+	verifications: Array<{
+		verification_flow: VerificationFlowsResponse;
+		verification_template: TemplatesResponse;
+	}>;
+};
 
-	return pipe(
-		default_well_known,
-
-		JSON.stringify,
-		S.replaceAll('{{ rp_url }}', relying_party_url),
-		JSON.parse,
-
-		_.set('display[0]', {
-			name: relying_party.name,
-			locale: DEFAULT_LOCALE
-		}),
-		_.set('trusted_credential_issuers', trusted_credential_issuers_urls)
-	) as WellKnown;
+function get_verifier_related_data_from_request_body(
+	body: DownloadMicroservicesRequestBody,
+	verifier: RelyingPartiesResponse
+): VerifierRelatedData {
+	return {
+		verifications: pipe(
+			body.verification_flows,
+			A.filter((verification_flow) => verification_flow.relying_party == verifier.id),
+			A.map((verification_flow) => ({
+				verification_flow,
+				verification_template: pipe(
+					body.templates,
+					A.findFirst((t) => t.id == verification_flow.template),
+					O.getOrThrow
+				)
+			}))
+		)
+	};
 }
 
 /* Zip editing */
 
-function edit_relying_party_well_known(
+function edit_html(
 	zip: AdmZip,
-	relying_party: RelyingPartiesResponse,
-	trusted_credential_issuers: IssuersResponse[]
+	verifier_related_data: VerifierRelatedData
 ) {
-	update_zip_json_entry(zip, get_relying_party_well_known_path(), (default_well_known) =>
-		create_relying_party_well_known(
-			relying_party,
-			trusted_credential_issuers,
-			default_well_known as WellKnown
-		)
-	);
+	update_zip_entry(zip, get_verifier_well_known_path(), (default_html: string) => {
+		return default_html.replace(
+			/^\s*const defaultQuery = .*$/m,
+			`    const defaultQuery = \`${verifier_related_data.verifications[0].verification_template.dcql_query}\`;`
+		);
+	});
 }
 
-function get_relying_party_well_known_path() {
+function get_verifier_well_known_path() {
 	return [
 		config.folder_names.public,
-		config.folder_names.microservices.relying_party,
-		config.folder_names.well_known,
-		config.file_names.well_known.relying_party
+		config.folder_names.microservices.verifier,
+		config.file_names.index_html,
 	].join('/');
 }

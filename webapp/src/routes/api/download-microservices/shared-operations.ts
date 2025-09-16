@@ -141,7 +141,7 @@ function microservice_dockerfile_template(microservice: MicroserviceFolder, msUr
 	const serviceNamePrefix = {
 		authz_server: 'as',
 		credential_issuer: 'ci',
-		relying_party: 'rp'
+		verifier: 'v'
 	};
 	const msDockerVersion = PUBLIC_DIDROOM_MICROSERVICES_BRANCH === 'main' ? 'latest' : 'stable';
 	const fullName = serviceNamePrefix[microservice] + '_' + msName;

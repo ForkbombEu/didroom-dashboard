@@ -7,7 +7,7 @@ import AdmZip from 'adm-zip';
 import { type DownloadMicroservicesRequestBody } from '.';
 import { create_credential_issuer_zip } from './credential-issuer';
 import { createAuthorizationServerZip } from './authorization-server';
-import { create_relying_party_zip } from './relying-party';
+import { create_verifier_zip } from './relying-party';
 import { addZipAsSubfolder } from './utils/zip';
 import { createSlug } from './utils/strings';
 import { startDockerCompose, endDockerCompose, setupDockerCompose } from './utils/dockercompose';
@@ -45,10 +45,10 @@ function createMicroservicesZip(
 		const az = createAuthorizationServerZip(didroom_microservices_zip_buffer, a, data);
 		addZipAsSubfolder(zip, az, `as_${createSlug(a.name)}`);
 	});
-	data.relying_parties.forEach((r) => {
-		setupDockerCompose(dockerComposeFiles, r, 'relying_party');
-		const rz = create_relying_party_zip(didroom_microservices_zip_buffer, r, data);
-		addZipAsSubfolder(zip, rz, `rp_${createSlug(r.name)}`);
+	data.relying_parties.forEach((v) => {
+		setupDockerCompose(dockerComposeFiles, v, 'verifier');
+		const rz = create_verifier_zip(didroom_microservices_zip_buffer, v, data);
+		addZipAsSubfolder(zip, rz, `v_${createSlug(v.name)}`);
 	});
 	data.credential_issuers.forEach((c) => {
 		setupDockerCompose(dockerComposeFiles, c, 'credential_issuer');
