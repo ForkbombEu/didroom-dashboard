@@ -16,7 +16,6 @@ import {
 	delete_unused_folders
 } from './shared-operations';
 import { copy_and_modify_zip_entry } from './utils/zip';
-import { createSlug } from './utils/strings';
 import { config } from './config';
 
 /* Main */
@@ -75,23 +74,33 @@ function edit_html(
 	verifier_related_data: VerifierRelatedData
 ) {
 	verifier_related_data.verifications.forEach(
-		({ verification_flow, verification_template}) => {
-			const slugName = createSlug(verification_flow.name);
+		({ verification_flow, verification_template }) => {
 			copy_and_modify_zip_entry(
 				zip,
 				get_verifier_index_path(),
-				get_verifier_index_path(slugName),
+				get_verifier_index_path(verification_flow.id),
 				(default_html: string) => {
-					return default_html.replace(
-						/^\s*const defaultQuery = .*$/m,
-						`    const defaultQuery = \`${verification_template.dcql_query}\`;`
-					);
+					// Replace "Verify with Didroom" line with title
+					const verifyRegex = /^(\s*.*Verify with Didroom)(.*)$/m;
+					let updatedHtml = default_html.replace(verifyRegex, `$1: ${verification_flow.name}$2`);
+
+					// Replace description paragraph
+					console.log(verification_flow)
+					if (verification_flow.description) {
+						const qrRegex = /(Scan the QR code below with your preferred digital‑wallet app to begin a\n\s*secure credential verification in Didroom\.)/s;
+						updatedHtml = updatedHtml.replace(qrRegex, `    ${verification_flow.description}`);
+					}
+
+					// Replace DCQL query
+					const queryRegex = /^\s*const defaultQuery = .*$/m;
+					updatedHtml = updatedHtml.replace(queryRegex, `    const defaultQuery = \`${verification_template.dcql_query}\`;`);
+					return updatedHtml;
 				}
 			);
 			copy_and_modify_zip_entry(
 				zip,
 				get_verifier_index_path(undefined, true),
-				get_verifier_index_path(slugName, true),
+				get_verifier_index_path(verification_flow.id, true),
 				(default_metadata: string) => default_metadata
 			);
 		}
