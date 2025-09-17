@@ -207,7 +207,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				options={{
 					inputMode: 'select',
 					displayFields: ['name', 'endpoint', 'port'],
-					label: m.Relying_party(),
+					label: m.Verifier(),
 					filter: `organization.id = '${organizationId}'`
 				}}
 				{superform}

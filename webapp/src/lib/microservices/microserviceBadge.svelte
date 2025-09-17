@@ -21,7 +21,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const strings: Record<MicroserviceType, string> = {
 		issuers: m.Credential_issuer(),
 		authorization_servers: m.Authorization_server(),
-		relying_parties: m.Relying_party()
+		relying_parties: m.Verifier()
 	};
 
 	$: color = colors[type];

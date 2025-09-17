@@ -45,8 +45,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			description: m.credential_issuer_description()
 		},
 		relying_parties: {
-			name: { singular: m.Relying_party(), plural: m.Relying_parties() },
-			description: m.relying_party_description()
+			name: { singular: m.Verifier(), plural: m.Verifiers() },
+			description: m.verifier_description()
 		}
 	};
 
