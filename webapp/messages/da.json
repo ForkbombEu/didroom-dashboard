@@ -204,7 +204,7 @@
   "New_verification_template": "Ny Verifikationsskabelon",
   "verification_flow_form_microservices_description": "Den Verifier er en mikrotjeneste, der modtager en verifiable presentation (eller credential eller zero knowledge proof), verificerer den og returnerer resultatet til verifikatoren. Vælg den pålidelige part, der skal udføre verifikationen.",
   "Verifier": "Verifier",
-  "New_relying_party": "Nyt verifier",
+  "New_verifier": "Nyt verifier",
   "Create_verification_flow": "Opret verifikationsflow",
   "Update_verification_flow": "Opdater verifikationsflow",
   "Edit_verification_flow": "Rediger verifikationsflow ",

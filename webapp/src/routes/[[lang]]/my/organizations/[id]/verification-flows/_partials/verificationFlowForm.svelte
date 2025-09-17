@@ -270,7 +270,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		width="w-[700px]"
 		placement="right"
 		bind:hidden={$hideRelyingPartyDrawer}
-		title={m.New_relying_party()}
+		title={m.New_verifier()}
 	>
 		<div class="p-8">
 			<RecordForm

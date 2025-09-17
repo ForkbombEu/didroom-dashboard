@@ -207,7 +207,7 @@
   "New_verification_template": "Nouveau modèle de vérification",
   "verification_flow_form_microservices_description": "Le Verifier est un microservice qui reçoit une présentation vérifiable (ou un identifiant, ou une zero knowledge proof), la vérifie et renvoie le résultat au vérificateur. Sélectionnez le Relying Party qui effectuera la vérification.",
   "Verifier": "Verifier",
-  "New_relying_party": "Nouveau verifier",
+  "New_verifier": "Nouveau verifier",
   "Create_verification_flow": "Créer un flux de vérification",
   "Update_verification_flow": "Mettre à jour le flux de vérification",
   "Edit_verification_flow": "Modifier le flux de vérification",

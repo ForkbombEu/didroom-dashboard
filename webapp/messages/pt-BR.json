@@ -203,7 +203,7 @@
   "New_verification_template": "Novo modelo de verificação",
   "verification_flow_form_microservices_description": "A parte confiável é um microsserviço, que recebe uma apresentação verificável (ou credencial, ou prova de conhecimento zero), verifica e retorna o resultado ao verificador. Selecione a parte confiável que realizará a verificação.",
   "Verifier": "Verifier",
-  "New_relying_party": "Novo verifier",
+  "New_verifier": "Novo verifier",
   "Create_verification_flow": "Criar fluxo de verificação",
   "Update_verification_flow": "Atualizar fluxo de verificação",
   "Edit_verification_flow": "Editar fluxo de verificação",

@@ -204,7 +204,7 @@
   "New_verification_template": "Nuovo modello di verifica",
   "verification_flow_form_microservices_description": "Il Verifier è un microservizio che riceve una verifiable presentation (o credenziale o una zero knowledge proof), la verifica e restituisce il risultato al verifier. Seleziona la componente che eseguirà la verifica.",
   "Verifier": "Verifier",
-  "New_relying_party": "Nuovo verifier",
+  "New_verifier": "Nuovo verifier",
   "Create_verification_flow": "Crea flusso di verifica",
   "Update_verification_flow": "Aggiorna il flusso di verifica",
   "Edit_verification_flow": "Modifica flusso di verifica",

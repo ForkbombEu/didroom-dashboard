@@ -204,7 +204,7 @@
   "New_verification_template": "Neue Verifizierungsvorlage",
   "verification_flow_form_microservices_description": "Die Verifier ist ein Mikrodienst, der eine Verifiable-Presentation (oder einen Credential oder einen zero knowledge proof) empfängt, überprüft und das Ergebnis an den Prüfer (Verifier) zurückgibt. Wählen Sie die vertrauende Partei aus, die die Überprüfung durchführen soll.",
   "Verifier": "Verifier",
-  "New_relying_party": "Neue verifier",
+  "New_verifier": "Neue verifier",
   "Create_verification_flow": "Verifikationsablauf erstellen",
   "Update_verification_flow": "Verifikationsablauf aktualisieren",
   "Edit_verification_flow": "Verifikationsablauf bearbeiten",
