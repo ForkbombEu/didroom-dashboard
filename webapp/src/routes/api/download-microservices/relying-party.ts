@@ -85,7 +85,6 @@ function edit_html(
 					let updatedHtml = default_html.replace(verifyRegex, `$1: ${verification_flow.name}$2`);
 
 					// Replace description paragraph
-					console.log(verification_flow)
 					if (verification_flow.description) {
 						const qrRegex = /(Scan the QR code below with your preferred digital‑wallet app to begin a\n\s*secure credential verification in Didroom\.)/s;
 						updatedHtml = updatedHtml.replace(qrRegex, `    ${verification_flow.description}`);
