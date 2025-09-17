@@ -15,7 +15,8 @@ import {
 	delete_tests,
 	delete_unused_folders
 } from './shared-operations';
-import { update_zip_entry } from './utils/zip';
+import { copy_and_modify_zip_entry } from './utils/zip';
+import { createSlug } from './utils/strings';
 import { config } from './config';
 
 /* Main */
@@ -73,18 +74,38 @@ function edit_html(
 	zip: AdmZip,
 	verifier_related_data: VerifierRelatedData
 ) {
-	update_zip_entry(zip, get_verifier_well_known_path(), (default_html: string) => {
-		return default_html.replace(
-			/^\s*const defaultQuery = .*$/m,
-			`    const defaultQuery = \`${verifier_related_data.verifications[0].verification_template.dcql_query}\`;`
-		);
-	});
+	verifier_related_data.verifications.forEach(
+		({ verification_flow, verification_template}) => {
+			const slugName = createSlug(verification_flow.name);
+			copy_and_modify_zip_entry(
+				zip,
+				get_verifier_index_path(),
+				get_verifier_index_path(slugName),
+				(default_html: string) => {
+					return default_html.replace(
+						/^\s*const defaultQuery = .*$/m,
+						`    const defaultQuery = \`${verification_template.dcql_query}\`;`
+					);
+				}
+			);
+			copy_and_modify_zip_entry(
+				zip,
+				get_verifier_index_path(undefined, true),
+				get_verifier_index_path(slugName, true),
+				(default_metadata: string) => default_metadata
+			);
+		}
+	);
 }
 
-function get_verifier_well_known_path() {
+function get_verifier_index_path(
+	verification_flow_name?: string,
+	metadata: boolean = false,
+) {
+	const m = metadata ? '.metadata.json' : '';
 	return [
 		config.folder_names.public,
 		config.folder_names.microservices.verifier,
-		config.file_names.index_html,
+		(verification_flow_name ?? config.file_names.index) + m,
 	].join('/');
 }

@@ -20,7 +20,7 @@ export const config = {
 		},
 		env_example: '.env.example',
 		dockerfile: 'Dockerfile',
-		index_html: 'index.html',
+		index: 'index',
 	},
 	file_extensions: {
 		zen: 'zen',
