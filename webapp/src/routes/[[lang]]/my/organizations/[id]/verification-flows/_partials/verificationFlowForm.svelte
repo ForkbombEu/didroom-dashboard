@@ -207,14 +207,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				options={{
 					inputMode: 'select',
 					displayFields: ['name', 'endpoint', 'port'],
-					label: m.Relying_party(),
+					label: m.Verifier(),
 					filter: `organization.id = '${organizationId}'`
 				}}
 				{superform}
 			>
 				<svelte:fragment slot="labelRight">
 					<Button outline size="xs" on:click={hideRelyingPartyDrawer.off}>
-						{m.New_relying_party()}
+						{m.New_verifier()}
 						<Icon src={Plus} size={16} ml></Icon>
 					</Button>
 				</svelte:fragment>
@@ -270,7 +270,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		width="w-[700px]"
 		placement="right"
 		bind:hidden={$hideRelyingPartyDrawer}
-		title={m.New_relying_party()}
+		title={m.New_verifier()}
 	>
 		<div class="p-8">
 			<RecordForm

@@ -3,90 +3,142 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import AdmZip from 'adm-zip';
-import { String as S, pipe, Array as A } from 'effect';
+import { String as S, pipe, Array as A, Option as O } from 'effect';
 import _ from 'lodash/fp';
 
-import type { IssuersResponse, RelyingPartiesResponse } from '$lib/pocketbase/types';
-import { formatMicroserviceUrl } from '$lib/microservices';
+import type { VerificationFlowsResponse, TemplatesResponse, RelyingPartiesResponse } from '$lib/pocketbase/types';
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
+	add_credential_custom_code,
 	add_microservice_dockerfile,
 	add_microservice_env,
 	delete_tests,
-	delete_unused_folders,
-	type WellKnown
+	delete_unused_folders
 } from './shared-operations';
-import { DEFAULT_LOCALE } from './utils/locale';
-import { update_zip_json_entry } from './utils/zip';
+import { copy_and_modify_zip_entry } from './utils/zip';
 import { config } from './config';
 
 /* Main */
 
-export function create_relying_party_zip(
+export function create_verifier_zip(
 	zip_buffer: Buffer,
-	relying_party: RelyingPartiesResponse,
+	verifier: RelyingPartiesResponse,
 	request_body: DownloadMicroservicesRequestBody
 ) {
 	const zip = new AdmZip(zip_buffer);
-	edit_relying_party_well_known(zip, relying_party, request_body.credential_issuers);
-	add_microservice_env(zip, relying_party);
-	add_microservice_dockerfile(zip, relying_party, config.folder_names.microservices.relying_party);
-	delete_unused_folders(zip, config.folder_names.microservices.relying_party);
+	const verifier_related_data = get_verifier_related_data_from_request_body(
+		request_body,
+		verifier
+	);
+	edit_html(zip, verifier_related_data);
+	add_credentials_custom_code(zip, verifier_related_data);
+	add_microservice_env(zip, verifier);
+	add_microservice_dockerfile(zip, verifier, config.folder_names.microservices.verifier);
+	delete_unused_folders(zip, config.folder_names.microservices.verifier);
 	delete_tests(zip);
 	return zip;
 }
 
-/* Well known editing */
+/* Data setup */
 
-function create_relying_party_well_known(
-	relying_party: RelyingPartiesResponse,
-	trusted_credential_issuers: IssuersResponse[],
-	default_well_known: WellKnown
-): WellKnown {
-	const relying_party_url = formatMicroserviceUrl(relying_party.endpoint, config.folder_names.microservices.relying_party);
-	const trusted_credential_issuers_urls = pipe(
-		trusted_credential_issuers,
-		A.map((issuer) => issuer.endpoint),
-		A.map((url) => formatMicroserviceUrl(url, config.folder_names.microservices.credential_issuer))
+type VerifierRelatedData = {
+	verifications: Array<{
+		verification_flow: VerificationFlowsResponse;
+		verification_template: TemplatesResponse;
+	}>;
+};
+
+function get_verifier_related_data_from_request_body(
+	body: DownloadMicroservicesRequestBody,
+	verifier: RelyingPartiesResponse
+): VerifierRelatedData {
+	return {
+		verifications: pipe(
+			body.verification_flows,
+			A.filter((verification_flow) => verification_flow.relying_party == verifier.id),
+			A.map((verification_flow) => ({
+				verification_flow,
+				verification_template: pipe(
+					body.templates,
+					A.findFirst((t) => t.id == verification_flow.template),
+					O.getOrThrow
+				)
+			}))
+		)
+	};
+}
+
+
+/* Custom code editing */
+
+function add_credentials_custom_code(
+	zip: AdmZip,
+	verifier_related_data: VerifierRelatedData
+) {
+	verifier_related_data.verifications.forEach(
+		({ verification_template }) => {
+			const meta = JSON.parse(verification_template.dcql_query).credentials[0].meta;
+			let type;
+			if ( meta.vct_values ) type = meta.vct_values[0];
+			else if ( meta.type_values ) type = meta.type_values[0][0];
+			add_credential_custom_code(
+				zip,
+				config.folder_names.microservices.verifier,
+				type,
+				verification_template
+			);
+		}
 	);
-
-	return pipe(
-		default_well_known,
-
-		JSON.stringify,
-		S.replaceAll('{{ rp_url }}', relying_party_url),
-		JSON.parse,
-
-		_.set('display[0]', {
-			name: relying_party.name,
-			locale: DEFAULT_LOCALE
-		}),
-		_.set('trusted_credential_issuers', trusted_credential_issuers_urls)
-	) as WellKnown;
 }
 
 /* Zip editing */
 
-function edit_relying_party_well_known(
+function edit_html(
 	zip: AdmZip,
-	relying_party: RelyingPartiesResponse,
-	trusted_credential_issuers: IssuersResponse[]
+	verifier_related_data: VerifierRelatedData
 ) {
-	update_zip_json_entry(zip, get_relying_party_well_known_path(), (default_well_known) =>
-		create_relying_party_well_known(
-			relying_party,
-			trusted_credential_issuers,
-			default_well_known as WellKnown
-		)
+	verifier_related_data.verifications.forEach(
+		({ verification_flow, verification_template }) => {
+			copy_and_modify_zip_entry(
+				zip,
+				get_verifier_index_path(),
+				get_verifier_index_path(verification_flow.id),
+				(default_html: string) => {
+					// Replace "Verify with Didroom" line with title
+					const verifyRegex = /^(\s*.*Verify with Didroom)(.*)$/m;
+					let updatedHtml = default_html.replace(verifyRegex, `$1: ${verification_flow.name}$2`);
+
+					// Replace description paragraph
+					if (verification_flow.description) {
+						const qrRegex = /(Scan the QR code below with your preferred digital‑wallet app to begin a\n\s*secure credential verification in Didroom\.)/s;
+						updatedHtml = updatedHtml.replace(qrRegex, `    ${verification_flow.description}`);
+					}
+
+					// Replace DCQL query
+					const queryRegex = /^\s*const defaultQuery = .*$/m;
+					updatedHtml = updatedHtml.replace(queryRegex, `    const defaultQuery = \`${verification_template.dcql_query}\`;`);
+					return updatedHtml;
+				}
+			);
+			copy_and_modify_zip_entry(
+				zip,
+				get_verifier_index_path(undefined, true),
+				get_verifier_index_path(verification_flow.id, true),
+				(default_metadata: string) => default_metadata
+			);
+		}
 	);
 }
 
-function get_relying_party_well_known_path() {
+function get_verifier_index_path(
+	verification_flow_name?: string,
+	metadata: boolean = false,
+) {
+	const m = metadata ? '.metadata.json' : '';
 	return [
 		config.folder_names.public,
-		config.folder_names.microservices.relying_party,
-		config.folder_names.well_known,
-		config.file_names.well_known.relying_party
+		config.folder_names.microservices.verifier,
+		(verification_flow_name ?? config.file_names.index) + m,
 	].join('/');
 }

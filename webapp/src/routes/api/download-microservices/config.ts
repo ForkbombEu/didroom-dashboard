@@ -9,7 +9,7 @@ export const config = {
 		microservices: {
 			authz_server: 'authz_server',
 			credential_issuer: 'credential_issuer',
-			relying_party: 'relying_party',
+			verifier: 'verifier',
 		},
 		well_known: '.well-known',
 	},
@@ -17,10 +17,10 @@ export const config = {
 		well_known: {
 			authz_server: 'oauth-authorization-server',
 			credential_issuer: 'openid-credential-issuer',
-			relying_party: 'openid-relying-party',
 		},
 		env_example: '.env.example',
 		dockerfile: 'Dockerfile',
+		index: 'index',
 	},
 	file_extensions: {
 		zen: 'zen',

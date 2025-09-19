@@ -17,6 +17,7 @@ import { cleanUrl } from '$lib/microservices';
 import { config } from './config';
 import { get_zip_root_folder, prepend_zip_root_folder, update_zip_entry } from './utils/zip';
 import { createSlug } from './utils/strings';
+import { PUBLIC_DIDROOM_MICROSERVICES_BRANCH } from '$env/static/public';
 
 /* Types */
 
@@ -140,10 +141,11 @@ function microservice_dockerfile_template(microservice: MicroserviceFolder, msUr
 	const serviceNamePrefix = {
 		authz_server: 'as',
 		credential_issuer: 'ci',
-		relying_party: 'rp'
+		verifier: 'v'
 	};
+	const msDockerVersion = PUBLIC_DIDROOM_MICROSERVICES_BRANCH === 'main' ? 'latest' : 'stable';
 	const fullName = serviceNamePrefix[microservice] + '_' + msName;
-	const dockerfile = `FROM ghcr.io/forkbombeu/didroom_microservices:stable
+	const dockerfile = `FROM ghcr.io/forkbombeu/didroom_microservices:${msDockerVersion}
 
 ENV ZENCODE_DIR=/app/${microservice}
 ENV PUBLIC_DIR=/app/public/${microservice}
@@ -154,8 +156,13 @@ ENV MS_NAME=${fullName}
 COPY ${microservice} /app/${microservice}
 COPY public/${microservice} /app/public/${microservice}
 `;
-	if (microservice == config.folder_names.microservices.authz_server) {
-		return dockerfile + '\nRUN make -C /app authorize\n';
+
+	switch (microservice) {
+		case config.folder_names.microservices.authz_server:
+			return dockerfile + '\nRUN make -C /app authorize\n';
+		case config.folder_names.microservices.credential_issuer:
+			return dockerfile + '\nRUN make -C /app credential\n';
+		default:
+			return dockerfile;
 	}
-	return dockerfile;
 }

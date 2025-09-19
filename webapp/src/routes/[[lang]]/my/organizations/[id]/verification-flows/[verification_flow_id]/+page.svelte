@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				</div> -->
 
 				<p>
-					{m.Relying_party()}:
+					{m.Verifier()}:
 					<span class="text-primary-700">{relying_party.endpoint}</span>
 				</p>
 

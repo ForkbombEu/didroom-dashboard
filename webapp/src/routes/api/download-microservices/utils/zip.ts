@@ -41,6 +41,18 @@ export function update_zip_json_entry(
 	);
 }
 
+export function copy_and_modify_zip_entry(
+	zip: AdmZip,
+	entryPathFragment: string,
+	destinationPathFragment: string,
+	updater: (content: string) => string
+) {
+	const zipEntry = getZipEntry(zip, entryPathFragment);
+	if (!zipEntry) throw new Error(`Zip: Not found: ${entryPathFragment}`);
+	const newContent = updater(readZipEntryAsString(zipEntry));
+	zip.addFile(prepend_zip_root_folder(zip, destinationPathFragment), Buffer.from(newContent));
+}
+
 export function delete_zip_folder(zip: AdmZip, folder_path: string) {
 	zip.deleteFile(folder_path);
 }

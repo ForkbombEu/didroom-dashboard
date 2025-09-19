@@ -92,12 +92,33 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	}
 
 	// setup code placeholders
+	const dcqlQueryExample = JSON.stringify(
+		{
+			credentials: [
+				{
+					id: 'my_credential',
+					format: 'dc+sd-jwt',
+					meta: {
+						vct_values: ['https://credentials.example.com/identity_credential']
+					},
+					claims: [
+						{ path: ['last_name'] },
+						{ path: ['first_name'] },
+						{ path: ['address', 'street_address'] }
+					]
+				}
+			]
+		},
+		null,
+		2
+	);
 
 	addCodePlaceholders();
 
 	function addCodePlaceholders() {
 		if (!$form['zencode_script']) $form['zencode_script'] = '# Add code here';
 		if (!$form['zencode_data']) $form['zencode_data'] = `{}`;
+		if (!$form['dcql_query']) $form['dcql_query'] = dcqlQueryExample;
 	}
 </script>
 
@@ -164,6 +185,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<CodeEditorField {superform} field="zencode_script" label={m.zencode_script()} lang="gherkin" />
 		<CodeEditorField {superform} field="zencode_data" label={m.zencode_data()} lang="json" />
 	</div>
+
+	{#if (initialData['type'] && initialData['type'] === TemplatesTypeOptions.verification) || $form['type'] === TemplatesTypeOptions.verification}
+		<div class="space-y-8">
+			<SectionTitle tag="h5" title="{m.dcql_query()}*" />
+
+			<CodeEditorField {superform} field="dcql_query" label="{m.dcql_query()} (JSON)" lang="json" />
+		</div>
+	{/if}
 
 	<div class="space-y-8">
 		<SectionTitle tag="h5" title={m.Advanced_settings()} />

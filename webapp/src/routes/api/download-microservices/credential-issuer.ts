@@ -116,8 +116,12 @@ function create_credential_issuer_well_known(
 		formatMicroserviceUrl(a.endpoint, config.folder_names.microservices.authz_server)
 	);
 	const credentialConfigurationsSupported = _.flow(
-		_.map(convert_issuance_flow_to_credential_configuration),
-		_.keyBy((item) => item.vct)
+		_.map((flow: IssuanceFlow) => {
+			const item = convert_issuance_flow_to_credential_configuration(flow);
+			const { id, ...credential_configuration } = item;
+			return [id, credential_configuration];
+		}),
+		_.fromPairs
 	);
 
 	return pipe(
@@ -139,11 +143,19 @@ function create_credential_issuer_well_known(
 	) as WellKnown;
 }
 
+function conditional_set(
+	condition: boolean,
+	path: string,
+	value: any
+): (obj: object) => object {
+	return condition ? _.set(path, value) : _.identity
+};
+
 function convert_issuance_flow_to_credential_configuration(
 	issuance_flow: IssuanceFlow
-): CredentialConfiguration {
+): CredentialConfiguration & { id: string } {
 	return pipe(
-		get_credential_configuration_template(),
+		get_credential_configuration_template(issuance_flow.cryptography as 'sd-jwt' | 'W3C-VC'),
 
 		_.set('display[0]', {
 			name: issuance_flow.display_name,
@@ -158,13 +170,18 @@ function convert_issuance_flow_to_credential_configuration(
 			description: issuance_flow.description
 		}),
 
-		_.set('vct', issuance_flow.type_name),
+		conditional_set(issuance_flow.cryptography === 'sd-jwt', 'vct', issuance_flow.type_name),
+		conditional_set(issuance_flow.cryptography === 'W3C-VC', 'credentials_definition.type[1]', issuance_flow.type_name),
 
 		_.set(
 			'claims',
 			objectSchemaToClaims(issuance_flow.template.schema as ObjectSchema, DEFAULT_LOCALE)
+		),
+		_.set(
+			'id',
+			issuance_flow.type_name
 		)
-	) as CredentialConfiguration;
+	) as CredentialConfiguration & { id: string };
 }
 
 type CredentialConfiguration = Record<string, unknown> & { readonly brand: unique symbol };
