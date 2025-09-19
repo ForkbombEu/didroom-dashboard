@@ -10,6 +10,7 @@ import type { VerificationFlowsResponse, TemplatesResponse, RelyingPartiesRespon
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
+	add_credential_custom_code,
 	add_microservice_dockerfile,
 	add_microservice_env,
 	delete_tests,
@@ -31,6 +32,7 @@ export function create_verifier_zip(
 		verifier
 	);
 	edit_html(zip, verifier_related_data);
+	add_credentials_custom_code(zip, verifier_related_data);
 	add_microservice_env(zip, verifier);
 	add_microservice_dockerfile(zip, verifier, config.folder_names.microservices.verifier);
 	delete_unused_folders(zip, config.folder_names.microservices.verifier);
@@ -65,6 +67,29 @@ function get_verifier_related_data_from_request_body(
 			}))
 		)
 	};
+}
+
+
+/* Custom code editing */
+
+function add_credentials_custom_code(
+	zip: AdmZip,
+	verifier_related_data: VerifierRelatedData
+) {
+	verifier_related_data.verifications.forEach(
+		({ verification_template }) => {
+			const meta = JSON.parse(verification_template.dcql_query).credentials[0].meta;
+			let type;
+			if ( meta.vct_values ) type = meta.vct_values[0];
+			else if ( meta.type_values ) type = meta.type_values[0][0];
+			add_credential_custom_code(
+				zip,
+				config.folder_names.microservices.verifier,
+				type,
+				verification_template
+			);
+		}
+	);
 }
 
 /* Zip editing */
