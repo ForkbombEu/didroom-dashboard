@@ -1,3 +1,10 @@
+## [1.36.2](https://github.com/ForkbombEu/signroom/compare/v1.36.1...v1.36.2) (2025-09-19)
+
+
+### Bug Fixes
+
+* **microservices:** update to latest version of microservices ([#998](https://github.com/ForkbombEu/signroom/issues/998)) ([0294b2d](https://github.com/ForkbombEu/signroom/commit/0294b2d63672ca8436a9d3d15c54ee61368f02f8))
+
 ## [1.36.1](https://github.com/ForkbombEu/signroom/compare/v1.36.0...v1.36.1) (2025-03-10)
 
 
