@@ -116,8 +116,12 @@ function create_credential_issuer_well_known(
 		formatMicroserviceUrl(a.endpoint, config.folder_names.microservices.authz_server)
 	);
 	const credentialConfigurationsSupported = _.flow(
-		_.map(convert_issuance_flow_to_credential_configuration),
-		_.keyBy((item) => item.vct)
+		_.map((flow: IssuanceFlow) => {
+			const item = convert_issuance_flow_to_credential_configuration(flow);
+			const { id, ...credential_configuration } = item;
+			return [id, credential_configuration];
+		}),
+		_.fromPairs
 	);
 
 	return pipe(
@@ -149,7 +153,7 @@ function conditional_set(
 
 function convert_issuance_flow_to_credential_configuration(
 	issuance_flow: IssuanceFlow
-): CredentialConfiguration {
+): CredentialConfiguration & { id: string } {
 	return pipe(
 		get_credential_configuration_template(issuance_flow.cryptography as 'sd-jwt' | 'W3C-VC'),
 
@@ -172,8 +176,12 @@ function convert_issuance_flow_to_credential_configuration(
 		_.set(
 			'claims',
 			objectSchemaToClaims(issuance_flow.template.schema as ObjectSchema, DEFAULT_LOCALE)
+		),
+		_.set(
+			'id',
+			issuance_flow.type_name
 		)
-	) as CredentialConfiguration;
+	) as CredentialConfiguration & { id: string };
 }
 
 type CredentialConfiguration = Record<string, unknown> & { readonly brand: unique symbol };
