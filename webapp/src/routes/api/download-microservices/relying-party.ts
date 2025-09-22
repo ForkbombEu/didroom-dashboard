@@ -16,7 +16,7 @@ import {
 	delete_tests,
 	delete_unused_folders
 } from './shared-operations';
-import { copy_and_modify_zip_entry } from './utils/zip';
+import { copy_and_modify_zip_entry, update_zip_entry } from './utils/zip';
 import { config } from './config';
 
 /* Main */
@@ -98,6 +98,7 @@ function edit_html(
 	zip: AdmZip,
 	verifier_related_data: VerifierRelatedData
 ) {
+	const verifierList: {name: string, description: string, url: string}[] = [];
 	verifier_related_data.verifications.forEach(
 		({ verification_flow, verification_template }) => {
 			copy_and_modify_zip_entry(
@@ -127,6 +128,19 @@ function edit_html(
 				get_verifier_index_path(verification_flow.id, true),
 				(default_metadata: string) => default_metadata
 			);
+			verifierList.push({
+				name: verification_flow.name,
+				description: verification_flow.description,
+				url: `./${verification_flow.id}`
+			});
+		}
+	);
+	update_zip_entry(
+		zip,
+		get_verifier_list_path(),
+		(content:string) => {
+			const listRegex = /^\s*const flows = '';/m;
+			return content.replace(listRegex, `        const flows = ${JSON.stringify(verifierList)};`);
 		}
 	);
 }
@@ -140,5 +154,13 @@ function get_verifier_index_path(
 		config.folder_names.public,
 		config.folder_names.microservices.verifier,
 		(verification_flow_name ?? config.file_names.index) + m,
+	].join('/');
+}
+
+function get_verifier_list_path() {
+	return [
+		config.folder_names.public,
+		config.folder_names.microservices.verifier,
+		config.file_names.list,
 	].join('/');
 }

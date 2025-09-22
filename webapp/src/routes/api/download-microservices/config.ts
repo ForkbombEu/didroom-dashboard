@@ -21,6 +21,7 @@ export const config = {
 		env_example: '.env.example',
 		dockerfile: 'Dockerfile',
 		index: 'index',
+		list: 'list',
 	},
 	file_extensions: {
 		zen: 'zen',
