@@ -86,7 +86,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	/* issuer */
 	type Properties = Record<string, { title: string; type: string }>;
 
-	let prevValue: string | undefined = undefined;
+	let prevIssunaceValue: string | undefined = $form.issuance_flow;
 	let selectedClaims: { id: string; name: string; values: string[] }[] = [];
 	const servicesType = createTypeProp<ServicesResponse>();
 
@@ -95,9 +95,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	}
 
 	// detect changes and reformat the dcql_query
-	$: if ($form.issuance_flow && $form.issuance_flow !== prevValue) {
-		prevValue = $form.issuance_flow;
-		console.log('Issuance flow changed:', $form.issuance_flow);
+	$: if ($form.issuance_flow && $form.issuance_flow !== prevIssunaceValue) {
+		prevIssunaceValue = $form.issuance_flow;
 		applyService($form.issuance_flow);
 	}
 	async function applyService(sId: string) {
