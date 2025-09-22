@@ -100,7 +100,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		applyService($form.issuance_flow);
 	}
 	async function applyService(sId: string) {
-		console.log('Applying service to template form:', sId);
 		const s = await pb
 			.collection(Collections.Services)
 			.getOne<ServicesResponse>(sId, { expand: 'credential_template' });
