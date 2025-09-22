@@ -241,7 +241,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<CodeEditorField {superform} field="zencode_data" label={m.zencode_data()} lang="json" />
 	</div>
 
-	{#if (initialData['type'] && initialData['type'] === TemplatesTypeOptions.verification) || $form['type'] === TemplatesTypeOptions.verification}
+	{#if $form['type'] === TemplatesTypeOptions.verification}
 		<div class="space-y-8">
 			<SectionTitle tag="h5" title="{m.dcql_query()}*" description={m.dcql_query()} />
 
