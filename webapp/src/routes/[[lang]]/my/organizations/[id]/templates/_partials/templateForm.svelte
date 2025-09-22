@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script lang="ts">
 	import SectionTitle from '$lib/components/sectionTitle.svelte';
-	import { Checkbox, Form, createForm, Select as SelectInput, FieldController } from '$lib/forms';
+	import { Checkbox, Form, createForm, Select as SelectInput, Relations } from '$lib/forms';
 	import Input from '$lib/forms/fields/input.svelte';
 	import Textarea from '$lib/forms/fields/textarea.svelte';
 	import { m } from '$lib/i18n';
@@ -16,8 +16,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		Collections,
 		TemplatesTypeOptions,
 		type TemplatesResponse,
-		type TemplatesRecord
-	} from '$lib/pocketbase/types';
+		type TemplatesRecord,
+		type ServicesResponse
+	} from '$lib/pocketbase/types.js';
 	import { fieldsSchemaToZod } from '$lib/pocketbaseToZod';
 	import { A, Alert, Button, Hr, Select, type SelectOptionType } from 'flowbite-svelte';
 	import JSONSchemaInput from './JSONSchemaInput.svelte';
@@ -25,7 +26,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import FormError from '$lib/forms/formError.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import CodeEditorField from './codeEditorField.svelte';
-
+	import { createTypeProp } from '$lib/utils/typeProp.js';
 	//
 
 	export let templateId: string | undefined = undefined;
@@ -80,6 +81,61 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		if (zencode_script) $form['zencode_script'] = zencode_script;
 		if (zencode_data) $form['zencode_data'] = zencode_data;
 		$form['schema'] = JSON.stringify(schema, null, 4);
+	}
+
+	/* issuer */
+	type Properties = Record<string, { title: string; type: string }>;
+
+	let prevValue: string | undefined = undefined;
+	let selectedClaims: { id: string; name: string; values: string[] }[] = [];
+	const servicesType = createTypeProp<ServicesResponse>();
+
+	function formatServiceRecord(r: ServicesResponse) {
+		return `${r.display_name} | ${r.type_name}`;
+	}
+
+	// detect changes and reformat the dcql_query
+	$: if ($form.issuance_flow && $form.issuance_flow !== prevValue) {
+		prevValue = $form.issuance_flow;
+		console.log('Issuance flow changed:', $form.issuance_flow);
+		applyService($form.issuance_flow);
+	}
+	async function applyService(sId: string) {
+		console.log('Applying service to template form:', sId);
+		const s = await pb
+			.collection(Collections.Services)
+			.getOne<ServicesResponse>(sId, { expand: 'credential_template' });
+		selectedClaims = Object.entries(
+			(s.expand.credential_template.schema as { properties: Properties }).properties
+		).reduce(
+			(acc, [k, v]) => {
+				acc.push({ id: k, name: v.title, values: [] });
+				return acc;
+			},
+			[] as { id: string; name: string; values: string[] }[]
+		);
+		$form['claims'] = JSON.stringify(selectedClaims);
+		$form['dcql_query'] = JSON.stringify(
+			{
+				credentials: [
+					{
+						id: 'my_credential',
+						format: s.cryptography === 'W3C-VC' ? 'ldp_vc' : 'dc+sd-jwt',
+						meta:
+							s.cryptography === 'W3C-VC'
+								? { type_values: [[s.type_name]] }
+								: { vct_values: [s.type_name] },
+						claims: selectedClaims.map((p) => {
+							return {
+								path: s.cryptography === 'W3C-VC' ? ['credentialSubject', p.id] : [p.id]
+							};
+						})
+					}
+				]
+			},
+			null,
+			2
+		);
 	}
 
 	// Utils
@@ -188,7 +244,22 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	{#if (initialData['type'] && initialData['type'] === TemplatesTypeOptions.verification) || $form['type'] === TemplatesTypeOptions.verification}
 		<div class="space-y-8">
-			<SectionTitle tag="h5" title="{m.dcql_query()}*" />
+			<SectionTitle tag="h5" title="{m.dcql_query()}*" description={m.dcql_query()} />
+
+			<Relations
+				recordType={servicesType}
+				collection={Collections.Services}
+				field="issuance_flow"
+				options={{
+					label: m.Issuance_flows(),
+					inputMode: 'select',
+					displayFields: ['display_name', 'type_name'],
+					expand: 'credential_template',
+					placeholder: m.Select_option(),
+					formatRecord: formatServiceRecord
+				}}
+				{superform}
+			></Relations>
 
 			<CodeEditorField {superform} field="dcql_query" label="{m.dcql_query()} (JSON)" lang="json" />
 		</div>
