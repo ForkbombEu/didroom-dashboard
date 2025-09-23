@@ -381,5 +381,12 @@
 	"user_is_already_member": "User is already member",
 	"cannot_change_template_preset_status": "Can't change template preset status",
 	"cannot_update_template_protected_fields": "Can't update template protected fields",
-	"dcql_query": "DCQL query"
+	"dcql_query": "DCQL query",
+	"Claim": "Claim",
+	"Data_Type": "Data Type",
+	"Values": "Values",
+	"Separate_values_with_commas": "Separate values with commas",
+	"string_type": "String",
+	"number_type": "Number",
+	"boolean_type": "Boolean"
 }

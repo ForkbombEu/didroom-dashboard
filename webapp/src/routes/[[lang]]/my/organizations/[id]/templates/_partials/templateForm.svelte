@@ -27,6 +27,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { createEventDispatcher } from 'svelte';
 	import CodeEditorField from './codeEditorField.svelte';
 	import { createTypeProp } from '$lib/utils/typeProp.js';
+	import type { ObjectSchema } from '$lib/jsonSchema/types';
+	import ClaimsEditor from './claims-editor.svelte';
+	import {
+		getClaimInputsFromObjectSchema,
+		getClaimInputsFromTemplate,
+		type ClaimInput
+	} from './claims';
+	import * as dcql from './dcql';
+
 	//
 
 	export let templateId: string | undefined = undefined;
@@ -84,59 +93,56 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	}
 
 	/* issuer */
-	type Properties = Record<string, { title: string; type: string }>;
 
-	let prevIssunaceValue: string | undefined = $form.issuance_flow;
-	let selectedClaims: { id: string; name: string; values: string[] }[] = [];
-	const servicesType = createTypeProp<ServicesResponse>();
+	let selectedIssuanceFlow: ServicesResponse | undefined = undefined;
+	let claims: ClaimInput[] = getClaimInputsFromTemplate(initialData);
+	$: $form['claims'] = JSON.stringify(claims);
 
-	function formatServiceRecord(r: ServicesResponse) {
-		return `${r.display_name} | ${r.type_name}`;
+	// At startup:
+	if ($form.issuance_flow && !selectedIssuanceFlow) {
+		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs }) => {
+			selectedIssuanceFlow = flow;
+			if (claims.length != 0) claims = cs; // Set claims only if they do not come from initial data
+		});
 	}
 
-	// detect changes and reformat the dcql_query
-	$: if ($form.issuance_flow && $form.issuance_flow !== prevIssunaceValue) {
-		prevIssunaceValue = $form.issuance_flow;
-		applyService($form.issuance_flow);
-	}
-	async function applyService(sId: string) {
-		const s = await pb
+	async function fetchFlowAndClaims(flowId: string) {
+		const flow = await pb
 			.collection(Collections.Services)
-			.getOne<ServicesResponse>(sId, { expand: 'credential_template' });
-		selectedClaims = Object.entries(
-			(s.expand.credential_template.schema as { properties: Properties }).properties
-		).reduce(
-			(acc, [k, v]) => {
-				acc.push({ id: k, name: v.title, values: [] });
-				return acc;
-			},
-			[] as { id: string; name: string; values: string[] }[]
-		);
-		$form['claims'] = JSON.stringify(selectedClaims);
+			.getOne<ServicesResponse>(flowId, { expand: 'credential_template' });
+
+		const credentialSchema = (flow.expand as any).credential_template.schema as ObjectSchema;
+		const claims = getClaimInputsFromObjectSchema(credentialSchema);
+		return { flow, claims };
+	}
+
+	async function handleFlowSelection(flowId: string | undefined) {
+		if (!flowId) return;
+		fetchFlowAndClaims(flowId).then(({ flow, claims: cs }) => {
+			selectedIssuanceFlow = flow;
+			claims = cs;
+		});
+	}
+
+	$: if (claims && selectedIssuanceFlow) {
 		$form['dcql_query'] = JSON.stringify(
-			{
-				credentials: [
-					{
-						id: 'my_credential',
-						format: s.cryptography === 'W3C-VC' ? 'ldp_vc' : 'dc+sd-jwt',
-						meta:
-							s.cryptography === 'W3C-VC'
-								? { type_values: [[s.type_name]] }
-								: { vct_values: [s.type_name] },
-						claims: selectedClaims.map((p) => {
-							return {
-								path: s.cryptography === 'W3C-VC' ? ['credentialSubject', p.id] : [p.id]
-							};
-						})
-					}
-				]
-			},
+			dcql.makeFromIssuanceFlowAndClaims(selectedIssuanceFlow, claims),
 			null,
 			2
 		);
 	}
 
-	// Utils
+	/* Code placeholders */
+
+	addCodePlaceholders();
+
+	function addCodePlaceholders() {
+		if (!$form['zencode_script']) $form['zencode_script'] = '# Add code here';
+		if (!$form['zencode_data']) $form['zencode_data'] = `{}`;
+		if (!$form['dcql_query']) $form['dcql_query'] = JSON.stringify(dcql.getExample(), null, 2);
+	}
+
+	/* Utils */
 
 	$: type = getType($form);
 
@@ -145,35 +151,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		else return undefined;
 	}
 
-	// setup code placeholders
-	const dcqlQueryExample = JSON.stringify(
-		{
-			credentials: [
-				{
-					id: 'my_credential',
-					format: 'dc+sd-jwt',
-					meta: {
-						vct_values: ['https://credentials.example.com/identity_credential']
-					},
-					claims: [
-						{ path: ['last_name'] },
-						{ path: ['first_name'] },
-						{ path: ['address', 'street_address'] }
-					]
-				}
-			]
-		},
-		null,
-		2
-	);
-
-	addCodePlaceholders();
-
-	function addCodePlaceholders() {
-		if (!$form['zencode_script']) $form['zencode_script'] = '# Add code here';
-		if (!$form['zencode_data']) $form['zencode_data'] = `{}`;
-		if (!$form['dcql_query']) $form['dcql_query'] = dcqlQueryExample;
+	function formatServiceRecord(r: ServicesResponse) {
+		return `${r.display_name} | ${r.type_name}`;
 	}
+
+	const servicesType = createTypeProp<ServicesResponse>();
 </script>
 
 <Form {superform} className="space-y-12" showRequiredIndicator>
@@ -254,10 +236,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					displayFields: ['display_name', 'type_name'],
 					expand: 'credential_template',
 					placeholder: m.Select_option(),
-					formatRecord: formatServiceRecord
+					formatRecord: formatServiceRecord,
+					onChange: handleFlowSelection
 				}}
 				{superform}
 			></Relations>
+
+			<ClaimsEditor bind:claims />
 
 			<CodeEditorField {superform} field="dcql_query" label="{m.dcql_query()} (JSON)" lang="json" />
 		</div>
