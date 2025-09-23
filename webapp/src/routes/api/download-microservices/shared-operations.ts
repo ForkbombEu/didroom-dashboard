@@ -162,6 +162,8 @@ COPY public/${microservice} /app/public/${microservice}
 			return dockerfile + '\nRUN make -C /app authorize\n';
 		case config.folder_names.microservices.credential_issuer:
 			return dockerfile + '\nRUN make -C /app credential\n';
+		case config.folder_names.microservices.verifier:
+			return dockerfile + '\nRUN make -C /app verifier\n';
 		default:
 			return dockerfile;
 	}
