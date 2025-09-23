@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/ForkbombEu/signroom/compare/v1.36.2...v1.37.0) (2025-09-23)
+
+
+### Features
+
+* setup verifier courtesy page ([#1001](https://github.com/ForkbombEu/signroom/issues/1001)) ([def9f9b](https://github.com/ForkbombEu/signroom/commit/def9f9b7485905227bea6d751133e35e50daa342))
+
 ## [1.36.2](https://github.com/ForkbombEu/signroom/compare/v1.36.1...v1.36.2) (2025-09-19)
 
 
