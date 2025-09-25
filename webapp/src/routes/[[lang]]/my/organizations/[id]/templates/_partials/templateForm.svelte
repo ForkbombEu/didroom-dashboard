@@ -236,6 +236,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					label: m.Issuance_flows(),
 					inputMode: 'select',
 					displayFields: ['display_name', 'type_name'],
+					filter: `organization.id = '${initialData.organization}'`,
 					expand: 'credential_template',
 					placeholder: m.Select_option(),
 					formatRecord: formatServiceRecord,
