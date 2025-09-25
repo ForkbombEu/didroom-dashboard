@@ -21,6 +21,9 @@ const config = {
 		},
 		version: {
 			name: process.env.npm_package_version
+		},
+		csrf: {
+			checkOrigin: false
 		}
 	}
 };
