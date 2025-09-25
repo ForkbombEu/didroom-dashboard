@@ -14,4 +14,5 @@ export type RecordInputOptions<R extends PBResponse> = {
 	disabled: boolean;
 	filter?: string | undefined;
 	expand?: string | undefined;
+	onChange?: (recordId: string | undefined) => void;
 };
