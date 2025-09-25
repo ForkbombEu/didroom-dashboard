@@ -69,7 +69,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 							buttonProps={{ outline: true, color: 'primary' }}
 							iconSize={16}
 							hideCopiedText
-						/>
+						>
+							{m.Download_via_curl()}
+						</CopyButton>
 						<IconButton
 							icon={QuestionMarkCircle}
 							href="https://didroom.com/guides/Sysadmin/deploy_microservices.html"
