@@ -18,6 +18,6 @@ Sentry.init({
 export const handle = sequence(
 	Sentry.sentryHandle(),
 	sequence(i18n.handle()),
-	handleCsrf([['/api/download-microservices', { origin: '*' }]])
+	handleCsrf([['https://1004.pr.didroom.com/api/download-microservices', { origin: '*' }]])
 );
 export const handleError = Sentry.handleErrorWithSentry();
