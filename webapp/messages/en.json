@@ -326,6 +326,7 @@
 	"Mode": "Mode",
 	"Please_add_at_least_one_day": "Please add at least one day",
 	"Date_must_be_after_today": "Date must be after today",
+	"Load_preset": "Load preset",
 	"load_preset_description": "Start from a preset and customize it to fit your use case ",
 	"Select_option": "Select option",
 	"privacy_policy": "Privacy policy",

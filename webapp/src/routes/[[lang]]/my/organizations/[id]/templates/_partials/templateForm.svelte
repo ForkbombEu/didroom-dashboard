@@ -184,7 +184,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 
 	<div class="space-y-4">
-		<SectionTitle tag="h5" title="Load preset" description={m.load_preset_description()} />
+		<SectionTitle tag="h5" title={m.Load_preset()} description={m.load_preset_description()} />
 		{#await presetsPromise then presets}
 			<Select items={presets} bind:value={preset} placeholder={m.Select_option()} />
 		{:catch _}
