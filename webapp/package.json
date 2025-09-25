@@ -40,6 +40,7 @@
 	"devDependencies": {
 		"@inlang/cli": "^2.18.1",
 		"@inlang/paraglide-js": "1.11.2",
+		"@kitql/handles": "^0.3.0",
 		"@playwright/test": "^1.45.3",
 		"@semantic-release/changelog": "^6.0.3",
 		"@semantic-release/commit-analyzer": "^13.0.0",

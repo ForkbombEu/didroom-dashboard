@@ -9,6 +9,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <script lang="ts" generics="T extends MicroserviceType">
+	import CopyButton from '$lib/components/copyButton.svelte';
+
+	import { pb } from '$lib/pocketbase';
+
+	import type { MicroserviceFolder } from '@api/download-microservices/shared-operations';
+
 	import {
 		CollectionManager,
 		CreateRecord,
@@ -51,6 +57,19 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	};
 
 	$: strings = microservicesStrings[microserviceType];
+
+	//
+
+	function getMicroserviceUpdateString(microservice: Microservice) {
+		const map: Record<MicroserviceType, MicroserviceFolder> = {
+			authorization_servers: 'authz_server',
+			issuers: 'credential_issuer',
+			relying_parties: 'verifier'
+		};
+		const urlWithoutProtocol = microservice.endpoint.replace(/(^\w+:|^)\/\//, '');
+		const msFolder = map[microservice.collectionName as MicroserviceType];
+		return `didroom_update ${urlWithoutProtocol}/${msFolder} ${pb.authStore.token}`;
+	}
 </script>
 
 <CollectionManager
@@ -106,6 +125,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				<svelte:fragment slot="right">
 					<ProtectedOrgUI orgId={organizationId} roles={['admin', 'owner']}>
 						<div class="flex gap-2">
+							<CopyButton
+								buttonProps={{ outline: true, color: 'primary' }}
+								iconSize={16}
+								textToCopy={getMicroserviceUpdateString(record)}
+							>
+								Update
+							</CopyButton>
+
 							<EditRecord
 								{record}
 								let:openModal

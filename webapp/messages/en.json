@@ -388,5 +388,7 @@
 	"Separate_values_with_commas": "Separate values with commas",
 	"string_type": "String",
 	"number_type": "Number",
-	"boolean_type": "Boolean"
+	"boolean_type": "Boolean",
+	"Download_via_curl": "Download via curl",
+	"curl_copied_to_clipboard": "The curl command to download the microservices has been copied to the Clipboard."
 }
