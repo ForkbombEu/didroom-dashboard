@@ -12,16 +12,27 @@ import { addZipAsSubfolder } from './utils/zip';
 import { createSlug } from './utils/strings';
 import { startDockerCompose, endDockerCompose, setupDockerCompose } from './utils/dockercompose';
 import { PUBLIC_DIDROOM_MICROSERVICES_BRANCH } from '$env/static/public';
+import type { ServicesResponse, TypedPocketBase } from '$lib/pocketbase/types';
+import type { RecordFullListOptions } from 'pocketbase';
+import type { Expiration } from '$lib/issuanceFlows/expiration';
+import PocketBase from 'pocketbase';
+import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 
 //
 
-const DIDROOM_MICROSERVICES_URL =
-	`https://github.com/ForkbombEu/DIDroom_microservices/archive/refs/heads/${PUBLIC_DIDROOM_MICROSERVICES_BRANCH}.zip`;
+export type DownloadMicroservicesPostBody = {
+	organizationId: string;
+};
+
+const DIDROOM_MICROSERVICES_URL = `https://github.com/ForkbombEu/DIDroom_microservices/archive/refs/heads/${PUBLIC_DIDROOM_MICROSERVICES_BRANCH}.zip`;
 
 export const POST: RequestHandler = async ({ fetch, request }) => {
+	const token = request.headers.get('Authorization');
+	if (!token) return errorResponse('missing_token');
 	try {
+		const body = await parseRequestBody(request);
 		const didroom_microservices_zip = await fetchZipFileAsBuffer(DIDROOM_MICROSERVICES_URL, fetch);
-		const data = await parseRequestBody(request);
+		const data = await fetchOrganizationData(token, body.organizationId, fetch);
 		const zip = createMicroservicesZip(didroom_microservices_zip, data);
 		return zipResponse(zip);
 	} catch (e) {
@@ -62,7 +73,7 @@ function createMicroservicesZip(
 
 //
 
-function parseRequestBody(request: Request): Promise<DownloadMicroservicesRequestBody> {
+function parseRequestBody(request: Request): Promise<DownloadMicroservicesPostBody> {
 	return request.json();
 }
 
@@ -72,6 +83,7 @@ async function fetchZipFileAsBuffer(url: string, fetchFn = fetch): Promise<Buffe
 }
 
 function zipResponse(zip: AdmZip) {
+	// @ts-expect-error - Dunno
 	return new Response(zip.toBuffer(), {
 		status: 200,
 		headers: {
@@ -84,4 +96,48 @@ function errorResponse(e: unknown) {
 	return new Response(e instanceof Error ? e.message : 'Internal Server Error', {
 		status: 500
 	});
+}
+
+/* */
+
+async function fetchOrganizationData(
+	token: string,
+	organizationId: string,
+	fetchFn = fetch
+): Promise<DownloadMicroservicesRequestBody> {
+	const pb = new PocketBase(PUBLIC_POCKETBASE_URL) as TypedPocketBase;
+	pb.authStore.save(token, null);
+
+	const pbOptions: RecordFullListOptions = {
+		filter: `organization.id = '${organizationId}'`,
+		fetch: fetchFn
+	};
+
+	const organization = await pb.collection('organizations').getOne(organizationId);
+	const issuance_flows = await pb
+		.collection('services')
+		.getFullList<ServicesResponse<Expiration>>(pbOptions);
+
+	const verification_flows = await pb.collection('verification_flows').getFullList(pbOptions);
+	const templates = await pb.collection('templates').getFullList(pbOptions);
+
+	const relying_parties = (await pb.collection('relying_parties').getFullList(pbOptions)).filter(
+		(rp) => verification_flows.map((vf) => vf.relying_party).includes(rp.id)
+	);
+	const credential_issuers = (await pb.collection('issuers').getFullList(pbOptions)).filter((ci) =>
+		issuance_flows.map((flow) => flow.credential_issuer).includes(ci.id)
+	);
+	const authorization_servers = (
+		await pb.collection('authorization_servers').getFullList(pbOptions)
+	).filter((as) => issuance_flows.map((flow) => flow.authorization_server).includes(as.id));
+
+	return {
+		organization,
+		issuance_flows,
+		verification_flows,
+		templates,
+		relying_parties,
+		credential_issuers,
+		authorization_servers
+	};
 }

@@ -29,7 +29,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <Button on:click={copyText} color="alternative" {...buttonProps}>
 	{#if !isCopied}
 		<slot />
-		<Icon src={ClipboardDocument} ml size={iconSize}></Icon>
+		<Icon src={ClipboardDocument} ml={$$slots.default} size={iconSize}></Icon>
 	{:else}
 		<span class="whitespace-nowrap">✅ Copied!</span>
 	{/if}

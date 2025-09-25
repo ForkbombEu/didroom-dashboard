@@ -34,20 +34,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		error = undefined;
 		loading = true;
 		try {
-			await downloadMicroservices(organization.id);
+			const response = await requestDownloadMicroservices(organization.id);
+			if (!response.ok) throw new Error(response.statusText);
+			dowloadResponseAsZip(response, 'microservices.zip');
 		} catch (e) {
 			error = getErrorMessage(e);
 		}
 		loading = false;
 	}
-
-	async function downloadMicroservices(organizationId: string, fetchFn = fetch) {
-		const response = await requestDownloadMicroservices(organizationId, fetchFn);
-		if (!response.ok) throw new Error(response.statusText);
-		dowloadResponseAsZip(response, 'microservices.zip');
-	}
-
-	//
 </script>
 
 <OrganizationLayout org={data.organization}>
