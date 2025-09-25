@@ -111,13 +111,26 @@ async function fetchOrganizationData(
 	const pb = new PocketBase(PUBLIC_POCKETBASE_URL) as TypedPocketBase;
 	pb.authStore.save(token, null);
 
+	// 1. Verifying user
+	const user = await pb.collection('users').authRefresh();
+
+	// 2. Getting and verifying organization
+	const organization = await pb.collection('organizations').getOne(organizationId);
+	try {
+		await pb
+			.collection('orgAuthorizations')
+			.getFirstListItem(`user.id = '${user.record.id}' && organization.id = '${organizationId}'`);
+	} catch {
+		throw new Error('The provided organization id is not associated with the user');
+	}
+
+	// 3. Fetching data
+
 	const pbOptions: RecordFullListOptions = {
 		filter: `organization.id = '${organizationId}'`,
 		fetch: fetchFn
 	};
-	throw new Error('invalid user and organization');
 
-	const organization = await pb.collection('organizations').getOne(organizationId);
 	const issuance_flows = await pb
 		.collection('services')
 		.getFullList<ServicesResponse<Expiration>>(pbOptions);
