@@ -8,7 +8,7 @@
 # set -euxo pipefail
 
 PR_NUMBER="${1}"
-PORT="25${PR_NUMBER}"
+PORT="2${PR_NUMBER}"
 ROOT="./ephemeral/${PR_NUMBER}"
 HOSTNAME="${PR_NUMBER}.pr.didroom.com"
 UUID="U${PR_NUMBER}"
