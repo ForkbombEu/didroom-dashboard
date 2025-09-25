@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { base } from '$app/paths';
 import type { Expiration } from '$lib/issuanceFlows/expiration';
 import { pb } from '$lib/pocketbase';
 import type {
@@ -29,7 +28,7 @@ export async function requestDownloadMicroservices(organizationId: string, fetch
 
 export function generateCurlDownloadMicroservices(organizationId: string) {
 	const authToken = pb.authStore.token;
-	const url = `${base}/api/download-microservices`;
+	const url = `${window.location.origin}/api/download-microservices`;
 
 	return `curl -X POST "${url}" \\
   -H "Authorization: Bearer ${authToken}" \\
