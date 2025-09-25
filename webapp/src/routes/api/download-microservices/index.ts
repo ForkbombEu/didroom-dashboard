@@ -13,15 +13,17 @@ import type {
 	TemplatesResponse,
 	VerificationFlowsResponse
 } from '$lib/pocketbase/types';
-import type { DownloadMicroservicesPostBody } from './+server';
 
 //
 
 export async function requestDownloadMicroservices(organizationId: string, fetchFn = fetch) {
-	const body: DownloadMicroservicesPostBody = {
-		organizationId
-	};
-	return await sendAuthenticatedPostRequest('/api/download-microservices', body, fetchFn);
+	return await fetchFn('/api/download-microservices', {
+		method: 'POST',
+		body: organizationId,
+		headers: {
+			Authorization: `Bearer ${pb.authStore.token}`
+		}
+	});
 }
 
 //
@@ -35,20 +37,3 @@ export type DownloadMicroservicesRequestBody = {
 	verification_flows: VerificationFlowsResponse[];
 	organization: OrganizationsResponse;
 };
-
-//
-
-function sendAuthenticatedPostRequest<T extends Record<string, unknown>>(
-	url: string,
-	body: T,
-	fetchFn = fetch
-) {
-	return fetchFn(url, {
-		method: 'POST',
-		body: JSON.stringify(body),
-		headers: {
-			'content-type': 'application/json',
-			Authorization: `Bearer ${pb.authStore.token}`
-		}
-	});
-}

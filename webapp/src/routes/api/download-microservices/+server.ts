@@ -30,9 +30,9 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 	const token = request.headers.get('Authorization');
 	if (!token) return errorResponse('missing_token');
 	try {
-		const body = await parseRequestBody(request);
+		const organizationId = await request.text();
 		const didroom_microservices_zip = await fetchZipFileAsBuffer(DIDROOM_MICROSERVICES_URL, fetch);
-		const data = await fetchOrganizationData(token, body.organizationId, fetch);
+		const data = await fetchOrganizationData(token, organizationId, fetch);
 		const zip = createMicroservicesZip(didroom_microservices_zip, data);
 		return zipResponse(zip);
 	} catch (e) {
@@ -72,10 +72,6 @@ function createMicroservicesZip(
 }
 
 //
-
-function parseRequestBody(request: Request): Promise<DownloadMicroservicesPostBody> {
-	return request.json();
-}
 
 async function fetchZipFileAsBuffer(url: string, fetchFn = fetch): Promise<Buffer> {
 	const zipResponse = await fetchFn(url);
