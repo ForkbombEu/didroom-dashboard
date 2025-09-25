@@ -56,7 +56,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		showActions = [],
 		max = undefined,
 		formSettings = {},
-		formatRecord = undefined
+		formatRecord = undefined,
+		onChange: onSelect = undefined
 	} = options;
 
 	//
@@ -127,6 +128,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	//
 
 	const hideCreateDrawer = createToggleStore(true);
+
+	$: if (value === undefined || value === null) {
+		onSelect?.(undefined);
+	}
 </script>
 
 <div class="space-y-4">

@@ -36,7 +36,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		placeholder = undefined,
 		filter = undefined,
 		expand = undefined,
-		formatRecord = undefined
+		formatRecord = undefined,
+		onChange: onSelect = undefined
 	} = options;
 
 	$: exclude = options.excludeIds ?? [];
@@ -54,6 +55,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	function handleChange(e: CustomEvent<null | Option>) {
 		recordId = e.detail?.[valueField];
+		if (recordId) onSelect?.(recordId);
 	}
 
 	//

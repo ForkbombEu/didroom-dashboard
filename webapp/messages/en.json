@@ -326,6 +326,7 @@
 	"Mode": "Mode",
 	"Please_add_at_least_one_day": "Please add at least one day",
 	"Date_must_be_after_today": "Date must be after today",
+	"Load_preset": "Load preset",
 	"load_preset_description": "Start from a preset and customize it to fit your use case ",
 	"Select_option": "Select option",
 	"privacy_policy": "Privacy policy",
@@ -382,6 +383,13 @@
 	"cannot_change_template_preset_status": "Can't change template preset status",
 	"cannot_update_template_protected_fields": "Can't update template protected fields",
 	"dcql_query": "DCQL query",
+	"Claim": "Claim",
+	"Data_Type": "Data Type",
+	"Values": "Values",
+	"Separate_values_with_commas": "Separate values with commas",
+	"string_type": "String",
+	"number_type": "Number",
+	"boolean_type": "Boolean",
 	"Download_via_curl": "Download via curl",
 	"curl_copied_to_clipboard": "The curl command to download the microservices has been copied to the Clipboard."
 }

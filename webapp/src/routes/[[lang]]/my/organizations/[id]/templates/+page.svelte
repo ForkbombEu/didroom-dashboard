@@ -239,7 +239,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <PortalWrapper>
 	<Drawer
-		width="w-[800px]"
+		width="w-3/4"
 		placement="right"
 		bind:hidden={$hideDrawer}
 		title={Boolean(templateFormId) ? m.Edit_template() : button}
