@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { ClipboardDocument, CheckCircle } from 'svelte-heros-v2';
 	import Icon from '$lib/components/icon.svelte';
 	import type { ComponentProps } from 'svelte';
-	import { fly, slide } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 	import { m } from '$lib/i18n';
 
 	export let textToCopy: string;
