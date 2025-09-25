@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import type { ObjectSchema } from '$lib/jsonSchema/types';
 import type { TemplatesRecord } from '$lib/pocketbase/types';
 import { String, Number as Num, Array } from 'effect';
