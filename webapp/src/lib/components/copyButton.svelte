@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script lang="ts">
 	import { Button } from 'flowbite-svelte';
-	import { ClipboardDocument } from 'svelte-heros-v2';
+	import { ClipboardDocument, CheckCircle } from 'svelte-heros-v2';
 	import Icon from '$lib/components/icon.svelte';
 	import type { ComponentProps } from 'svelte';
 
@@ -14,6 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	export let delay = 2000;
 	export let buttonProps: ComponentProps<Button> = {};
 	export let iconSize = 20;
+	export let hideCopiedText = false;
 
 	let isCopied = false;
 
@@ -31,6 +32,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<slot />
 		<Icon src={ClipboardDocument} ml={$$slots.default} size={iconSize}></Icon>
 	{:else}
-		<span class="whitespace-nowrap">✅ Copied!</span>
+		{#if !hideCopiedText}
+			<span class="whitespace-nowrap">Copied!</span>
+		{/if}
+		<Icon src={CheckCircle} ml={$$slots.default} size={iconSize} class="text-green-500" />
 	{/if}
 </Button>
