@@ -382,5 +382,6 @@
 	"cannot_change_template_preset_status": "Can't change template preset status",
 	"cannot_update_template_protected_fields": "Can't update template protected fields",
 	"dcql_query": "DCQL query",
-	"Download_via_curl": "Download via curl"
+	"Download_via_curl": "Download via curl",
+	"curl_copied_to_clipboard": "The curl command to download the microservices has been copied to the Clipboard."
 }

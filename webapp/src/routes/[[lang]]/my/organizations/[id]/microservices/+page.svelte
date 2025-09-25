@@ -22,7 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { dowloadResponseAsZip } from '$lib/utils/clientFileDownload.js';
 	import MicroserviceCollectionManager from './_partials/microserviceCollectionManager.svelte';
 	import IconButton from '$lib/components/iconButton.svelte';
-	import CopyButton from '$lib/components/copyButton.svelte';
+	import CopyButton from '$lib/components/copyButton-2.svelte';
 
 	//
 
@@ -68,7 +68,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 							textToCopy={generateCurlDownloadMicroservices(organization.id)}
 							buttonProps={{ outline: true, color: 'primary' }}
 							iconSize={16}
-							hideCopiedText
 						>
 							{m.Download_via_curl()}
 						</CopyButton>
