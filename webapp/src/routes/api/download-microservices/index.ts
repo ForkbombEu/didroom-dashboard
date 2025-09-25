@@ -29,11 +29,7 @@ export async function requestDownloadMicroservices(organizationId: string, fetch
 export function generateCurlDownloadMicroservices(organizationId: string) {
 	const authToken = pb.authStore.token;
 	const url = `${window.location.origin}/api/download-microservices`;
-
-	return `curl -X POST "${url}" \\
-  -H "Authorization: Bearer ${authToken}" \\
-  -d "${organizationId}" \\
-  --output microservices.zip`;
+	return `curl -X POST "${url}" -H "Authorization: Bearer ${authToken}" -d "${organizationId}" --output microservices.zip`;
 }
 
 //
