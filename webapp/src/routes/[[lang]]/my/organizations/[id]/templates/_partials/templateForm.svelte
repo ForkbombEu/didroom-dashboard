@@ -102,7 +102,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	if ($form.issuance_flow && !selectedIssuanceFlow) {
 		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs }) => {
 			selectedIssuanceFlow = flow;
-			if (claims.length != 0) claims = cs; // Set claims only if they do not come from initial data
+			if (claims.length === 0) claims = cs; // Set claims only if they do not come from initial data
 		});
 	}
 
@@ -194,15 +194,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		{/await}
 	</div>
 
-	<div class="space-y-8">
-		<SectionTitle
-			tag="h5"
-			title="{m.Form_structure()} *"
-			description={m.form_structure_description()}
-		/>
+	{#if $form['type'] !== TemplatesTypeOptions.verification}
+		<div class="space-y-8">
+			<SectionTitle
+				tag="h5"
+				title="{m.Form_structure()} *"
+				description={m.form_structure_description()}
+			/>
 
-		<JSONSchemaInput {superform} field="schema" />
-	</div>
+			<JSONSchemaInput {superform} field="schema" />
+		</div>
+	{/if}
 
 	<div class="space-y-8">
 		<SectionTitle tag="h5" title="{m.Custom_code()}*" description={m.custom_code_description()} />
