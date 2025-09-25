@@ -1,3 +1,11 @@
+# [1.38.0](https://github.com/ForkbombEu/signroom/compare/v1.37.1...v1.38.0) (2025-09-25)
+
+
+### Features
+
+* port download microservices from old branch ([#1004](https://github.com/ForkbombEu/signroom/issues/1004)) ([7136855](https://github.com/ForkbombEu/signroom/commit/7136855fcfaba7c8ce01a00ece4933a267595401))
+* simplify creation of dcql_query ([#1000](https://github.com/ForkbombEu/signroom/issues/1000)) ([d700397](https://github.com/ForkbombEu/signroom/commit/d700397efb6ed194f55f18148bdea62561af58bb)), closes [#1003](https://github.com/ForkbombEu/signroom/issues/1003)
+
 ## [1.37.1](https://github.com/ForkbombEu/signroom/compare/v1.37.0...v1.37.1) (2025-09-23)
 
 
