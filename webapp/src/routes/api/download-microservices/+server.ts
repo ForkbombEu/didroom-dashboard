@@ -37,7 +37,7 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 		return zipResponse(zip);
 	} catch (e) {
 		console.log(e);
-		return errorResponse(e);
+		return zipResponse(zipError(e));
 	}
 };
 
@@ -78,7 +78,7 @@ async function fetchZipFileAsBuffer(url: string, fetchFn = fetch): Promise<Buffe
 	return Buffer.from(await zipResponse.arrayBuffer());
 }
 
-function zipResponse(zip: AdmZip) {
+function zipResponse(zip: AdmZip): Response {
 	// @ts-expect-error - Dunno
 	return new Response(zip.toBuffer(), {
 		status: 200,
@@ -88,10 +88,17 @@ function zipResponse(zip: AdmZip) {
 	});
 }
 
-function errorResponse(e: unknown) {
+function errorResponse(e: unknown): Response {
 	return new Response(e instanceof Error ? e.message : 'Internal Server Error', {
 		status: 500
 	});
+}
+
+function zipError(e: unknown): AdmZip {
+	const zip = new AdmZip();
+	const errorMessage = e instanceof Error ? e.message : 'Internal Server Error';
+	zip.addFile('error.txt', Buffer.from(errorMessage, 'utf-8'));
+	return zip;
 }
 
 /* */
@@ -108,6 +115,7 @@ async function fetchOrganizationData(
 		filter: `organization.id = '${organizationId}'`,
 		fetch: fetchFn
 	};
+	throw new Error('invalid user and organization');
 
 	const organization = await pb.collection('organizations').getOne(organizationId);
 	const issuance_flows = await pb
