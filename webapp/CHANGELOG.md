@@ -1,3 +1,10 @@
+## [1.38.1](https://github.com/ForkbombEu/signroom/compare/v1.38.0...v1.38.1) (2025-09-26)
+
+
+### Bug Fixes
+
+* on verification form set schema to empty string ([#1005](https://github.com/ForkbombEu/signroom/issues/1005)) ([2669d94](https://github.com/ForkbombEu/signroom/commit/2669d94f1d931d1054c1333d79ae29cb73946c05))
+
 # [1.38.0](https://github.com/ForkbombEu/signroom/compare/v1.37.1...v1.38.0) (2025-09-25)
 
 
