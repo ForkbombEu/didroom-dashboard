@@ -1,3 +1,10 @@
+## [1.38.2](https://github.com/ForkbombEu/signroom/compare/v1.38.1...v1.38.2) (2025-09-26)
+
+
+### Bug Fixes
+
+* remove copy button frm microservices ([#1006](https://github.com/ForkbombEu/signroom/issues/1006)) ([48e22c4](https://github.com/ForkbombEu/signroom/commit/48e22c490ba16c75de00e4d3718524a59aad938f))
+
 ## [1.38.1](https://github.com/ForkbombEu/signroom/compare/v1.38.0...v1.38.1) (2025-09-26)
 
 
