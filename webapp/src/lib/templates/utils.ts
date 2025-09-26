@@ -48,7 +48,7 @@ export function getVerificationTemplatePropertyList(claims: Array<unknown | unde
 		A.filter((c): c is Claim[] => c !== undefined),
 		A.flatten,
 		A.filter((c) => c.selected),
-		A.map((c) => c.name),
+		A.map((c) => c.id),
 		A.join(', ')
 	)
 }
