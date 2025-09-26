@@ -125,14 +125,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				<svelte:fragment slot="right">
 					<ProtectedOrgUI orgId={organizationId} roles={['admin', 'owner']}>
 						<div class="flex gap-2">
-							<CopyButton
-								buttonProps={{ outline: true, color: 'primary' }}
-								iconSize={16}
-								textToCopy={getMicroserviceUpdateString(record)}
-							>
-								Update
-							</CopyButton>
-
 							<EditRecord
 								{record}
 								let:openModal
