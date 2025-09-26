@@ -10,6 +10,14 @@ import {
 	flattenClaimsProperties
 } from '@api/download-microservices/utils/credential-subject';
 
+type Claim = {
+	id: string
+	name: string
+	selected: boolean
+	type: string
+	values: string
+}
+
 //
 
 export function getTemplatePropertyList(schemas: Array<unknown | undefined>) {
@@ -32,4 +40,15 @@ export function getTemplatePropertyList(schemas: Array<unknown | undefined>) {
 		A.flatten,
 		A.join(', ')
 	);
+}
+
+export function getVerificationTemplatePropertyList(claims: Array<unknown | undefined>) {
+	return pipe(
+		claims,
+		A.filter((c): c is Claim[] => c !== undefined),
+		A.flatten,
+		A.filter((c) => c.selected),
+		A.map((c) => c.name),
+		A.join(', ')
+	)
 }

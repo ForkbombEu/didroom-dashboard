@@ -101,7 +101,7 @@ export function flattenClaimsProperties(
 
 	Object.entries(claims).forEach(([propertyName, property]) => {
 		if (checkClaimsProperty(property)) {
-			propertyList.push([propertyName, property]);
+			propertyList.push([property.display?.[0].name || '', property]);
 		}
 		//
 		else {
