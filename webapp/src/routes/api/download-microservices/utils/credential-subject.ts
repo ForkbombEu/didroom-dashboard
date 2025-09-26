@@ -46,7 +46,7 @@ export function objectSchemaToClaims(
 			} else if (value.type !== 'array') {
 				const prop: ClaimsProperty = {
 					mandatory: isMandatory,
-					display: [{ locale, name: value.title ?? key }],
+					display: [{ locale, name: value.title ?? key, id: newPath.join('.') }],
 					path: newPath
 				};
 				claims.push(prop);
@@ -67,12 +67,14 @@ export type Claims = ClaimsProperty[];
 
 const DisplayPropertiesSchema = z.object({
 	name: z.string(),
-	locale: z.string()
+	locale: z.string(),
+	id: z.string()
 });
 
 type DisplayProperties = {
 	name: string;
 	locale: string;
+	id: string;
 };
 
 const ClaimsPropertySchema = z.object({
@@ -99,7 +101,8 @@ export function flattenClaimsProperties(
 ): [string, ClaimsProperty][] {
 	let propertyList: [string, ClaimsProperty][] = [];
 
-	Object.entries(claims).forEach(([propertyName, property]) => {
+	claims.forEach((property) => {
+		const propertyName = property.display?.[0].id || '';
 		if (checkClaimsProperty(property)) {
 			propertyList.push([propertyName, property]);
 		}
