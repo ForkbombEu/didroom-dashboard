@@ -1,3 +1,10 @@
+## [1.38.3](https://github.com/ForkbombEu/signroom/compare/v1.38.2...v1.38.3) (2025-09-30)
+
+
+### Bug Fixes
+
+* parse verification template claims field instead of schema ([#1008](https://github.com/ForkbombEu/signroom/issues/1008)) ([6a78a31](https://github.com/ForkbombEu/signroom/commit/6a78a31c11e2897a7c4a2c544ef8f07a266543d5))
+
 ## [1.38.2](https://github.com/ForkbombEu/signroom/compare/v1.38.1...v1.38.2) (2025-09-26)
 
 
