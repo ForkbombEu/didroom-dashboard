@@ -25,14 +25,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <OrganizationLayout org={organization}>
 	<PageCard>
 		<Heading tag="h6" class="mb-6">{m.Manage_your_organization_public_info()}</Heading>
-		<RecordForm
-			{recordType}
-			collection={Collections.Organizations}
-			recordId={organization.id}
-			initialData={organization}
-			submitButtonText={m.Save_changes()}
-			on:success={invalidateAll}
-			formSettings={{ dataType: 'json' }}
-		/>
+		{#key organization.id}
+			<RecordForm
+				{recordType}
+				collection={Collections.Organizations}
+				recordId={organization.id}
+				initialData={organization}
+				submitButtonText={m.Save_changes()}
+				on:success={invalidateAll}
+				formSettings={{ dataType: 'json' }}
+			/>
+		{/key}
 	</PageCard>
 </OrganizationLayout>
