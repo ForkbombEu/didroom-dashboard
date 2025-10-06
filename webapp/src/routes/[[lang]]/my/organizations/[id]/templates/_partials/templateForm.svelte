@@ -28,6 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import CodeEditorField from './codeEditorField.svelte';
 	import { createTypeProp } from '$lib/utils/typeProp.js';
 	import type { ObjectSchema } from '$lib/jsonSchema/types';
+	import { formatMicroserviceUrl } from '$lib/microservices';
 	import ClaimsEditor from './claims-editor.svelte';
 	import {
 		getClaimInputsFromObjectSchema,
@@ -101,9 +102,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	// At startup:
 	if ($form.issuance_flow && !selectedIssuanceFlow) {
-		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs, issEndpoint }) => {
+		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs, fromattedIssEndpoint }) => {
 			selectedIssuanceFlow = flow;
-			issUrl = issEndpoint;
+			issUrl = fromattedIssEndpoint;
 			if (claims.length === 0) claims = cs; // Set claims only if they do not come from initial data
 		});
 	}
@@ -119,15 +120,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		const credentialSchema = publicData.schema as ObjectSchema;
 		const claims = getClaimInputsFromObjectSchema(credentialSchema);
 		const issEndpoint = (flow.expand as any).credential_issuer.endpoint;
-		return { flow, claims, issEndpoint };
+		const fromattedIssEndpoint = formatMicroserviceUrl(issEndpoint, 'credential_issuer');
+		return { flow, claims, fromattedIssEndpoint };
 	}
 
 	async function handleFlowSelection(flowId: string | undefined) {
 		if (!flowId) return;
-		fetchFlowAndClaims(flowId).then(({ flow, claims: cs , issEndpoint }) => {
+		fetchFlowAndClaims(flowId).then(({ flow, claims: cs , fromattedIssEndpoint }) => {
 			selectedIssuanceFlow = flow;
 			claims = cs;
-			issUrl = issEndpoint;
+			issUrl = fromattedIssEndpoint;
 		});
 	}
 
