@@ -96,12 +96,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	let selectedIssuanceFlow: ServicesResponse | undefined = undefined;
 	let claims: ClaimInput[] = getClaimInputsFromTemplate(initialData);
+	let issUrl: string | undefined = undefined;
 	$: $form['claims'] = JSON.stringify(claims);
 
 	// At startup:
 	if ($form.issuance_flow && !selectedIssuanceFlow) {
-		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs }) => {
+		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs, issEndpoint }) => {
 			selectedIssuanceFlow = flow;
+			issUrl = issEndpoint;
 			if (claims.length === 0) claims = cs; // Set claims only if they do not come from initial data
 		});
 	}
@@ -109,24 +111,29 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	async function fetchFlowAndClaims(flowId: string) {
 		const flow = await pb
 			.collection(Collections.Services)
-			.getOne<ServicesResponse>(flowId, { expand: 'credential_template' });
+			.getOne<ServicesResponse>(flowId, { expand: 'credential_issuer' });
+		const publicData = await pb
+			.collection(Collections.TemplatesPublicData)
+			.getOne(flow.credential_template);
 
-		const credentialSchema = (flow.expand as any).credential_template.schema as ObjectSchema;
+		const credentialSchema = publicData.schema as ObjectSchema;
 		const claims = getClaimInputsFromObjectSchema(credentialSchema);
-		return { flow, claims };
+		const issEndpoint = (flow.expand as any).credential_issuer.endpoint;
+		return { flow, claims, issEndpoint };
 	}
 
 	async function handleFlowSelection(flowId: string | undefined) {
 		if (!flowId) return;
-		fetchFlowAndClaims(flowId).then(({ flow, claims: cs }) => {
+		fetchFlowAndClaims(flowId).then(({ flow, claims: cs , issEndpoint }) => {
 			selectedIssuanceFlow = flow;
 			claims = cs;
+			issUrl = issEndpoint;
 		});
 	}
 
-	$: if (claims && selectedIssuanceFlow) {
+	$: if (claims && selectedIssuanceFlow && issUrl) {
 		$form['dcql_query'] = JSON.stringify(
-			dcql.makeFromIssuanceFlowAndClaims(selectedIssuanceFlow, claims),
+			dcql.makeFromIssuanceFlowAndClaims(selectedIssuanceFlow, claims, issUrl),
 			null,
 			2
 		);
@@ -240,8 +247,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					label: m.Issuance_flows(),
 					inputMode: 'select',
 					displayFields: ['display_name', 'type_name'],
-					filter: `organization.id = '${initialData.organization}'`,
-					expand: 'credential_template',
 					placeholder: m.Select_option(),
 					formatRecord: formatServiceRecord,
 					onChange: handleFlowSelection
@@ -251,7 +256,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			<ClaimsEditor bind:claims />
 
-			<CodeEditorField {superform} field="dcql_query" label="{m.dcql_query()} (JSON)" lang="json" />
+			<div class="relative">
+				<CodeEditorField
+					{superform}
+					field="dcql_query"
+					label="{m.dcql_query()} (JSON)"
+					lang="json"
+				/>
+				<!-- Overlay blocks editing -->
+				<div class="absolute inset-0 z-10" style="pointer-events: all;"></div>
+			</div>
 		</div>
 	{/if}
 

@@ -7,7 +7,8 @@ import { type ClaimInput, inputToClaim } from './claims';
 
 export function makeFromIssuanceFlowAndClaims(
 	issuanceFlow: ServicesResponse,
-	claims: ClaimInput[]
+	claims: ClaimInput[],
+	issUrl: string,
 ) {
 	return {
 		credentials: [
@@ -20,13 +21,23 @@ export function makeFromIssuanceFlowAndClaims(
 						? { type_values: [[issuanceFlow.type_name]] }
 						: { vct_values: [issuanceFlow.type_name] },
 
-				claims: claims
-					.filter((c) => c.selected)
-					.map((c) =>
-						inputToClaim(c, (id) =>
-							issuanceFlow.cryptography === 'W3C-VC' ? ['credentialSubject', id] : [id]
-						)
-					)
+				claims: [
+					...claims
+						.filter((c) => c.selected)
+						.map((c) =>
+							inputToClaim(c, (id) =>
+								issuanceFlow.cryptography === 'W3C-VC' ? ['credentialSubject', id] : [id]
+							)
+						),
+					{
+						path: [
+							issuanceFlow.cryptography === 'W3C-VC' ? 'issuer': 'iss'
+						],
+						values: [
+							issUrl
+						]
+					}
+				]
 			}
 		]
 	};
