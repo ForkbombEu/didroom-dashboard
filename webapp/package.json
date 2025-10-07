@@ -5,7 +5,7 @@
 		"email": "puria@dyne.org"
 	},
 	"description": "Advanced electronic signature service based on Zenroom",
-	"version": "1.38.4",
+	"version": "1.38.5",
 	"private": true,
 	"engines": {
 		"node": ">=17",

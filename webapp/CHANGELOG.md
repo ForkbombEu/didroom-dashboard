@@ -1,3 +1,10 @@
+## [1.38.5](https://github.com/ForkbombEu/signroom/compare/v1.38.4...v1.38.5) (2025-10-07)
+
+
+### Bug Fixes
+
+* **templates:** ensure badge colors update correctly after creating new template ([#1012](https://github.com/ForkbombEu/signroom/issues/1012)) ([d667299](https://github.com/ForkbombEu/signroom/commit/d667299aa35c2f7323792ea14de26290b47fe8b2))
+
 ## [1.38.4](https://github.com/ForkbombEu/signroom/compare/v1.38.3...v1.38.4) (2025-10-07)
 
 
