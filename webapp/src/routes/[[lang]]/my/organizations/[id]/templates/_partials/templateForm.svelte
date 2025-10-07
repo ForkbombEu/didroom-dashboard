@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		type ServicesResponse
 	} from '$lib/pocketbase/types.js';
 	import { fieldsSchemaToZod } from '$lib/pocketbaseToZod';
-	import { A, Alert, Button, Hr, Select, type SelectOptionType } from 'flowbite-svelte';
+	import { A, Alert, Button, Hr, Label, Select, type SelectOptionType } from 'flowbite-svelte';
 	import JSONSchemaInput from './JSONSchemaInput.svelte';
 	import SubmitButton from '$lib/forms/submitButton.svelte';
 	import FormError from '$lib/forms/formError.svelte';
@@ -28,6 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import CodeEditorField from './codeEditorField.svelte';
 	import { createTypeProp } from '$lib/utils/typeProp.js';
 	import type { ObjectSchema } from '$lib/jsonSchema/types';
+	import { formatMicroserviceUrl } from '$lib/microservices';
 	import ClaimsEditor from './claims-editor.svelte';
 	import {
 		getClaimInputsFromObjectSchema,
@@ -35,6 +36,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		type ClaimInput
 	} from './claims';
 	import * as dcql from './dcql';
+	import CodeDisplay from '$lib/components/code-display.svelte';
 
 	//
 
@@ -96,12 +98,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	let selectedIssuanceFlow: ServicesResponse | undefined = undefined;
 	let claims: ClaimInput[] = getClaimInputsFromTemplate(initialData);
+	let issUrl: string | undefined = undefined;
 	$: $form['claims'] = JSON.stringify(claims);
 
 	// At startup:
 	if ($form.issuance_flow && !selectedIssuanceFlow) {
-		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs }) => {
+		fetchFlowAndClaims($form.issuance_flow).then(({ flow, claims: cs, fromattedIssEndpoint }) => {
 			selectedIssuanceFlow = flow;
+			issUrl = fromattedIssEndpoint;
 			if (claims.length === 0) claims = cs; // Set claims only if they do not come from initial data
 		});
 	}
@@ -109,31 +113,37 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	async function fetchFlowAndClaims(flowId: string) {
 		const flow = await pb
 			.collection(Collections.Services)
-			.getOne<ServicesResponse>(flowId, { expand: 'credential_template' });
+			.getOne<ServicesResponse>(flowId, { expand: 'credential_issuer' });
+		const publicData = await pb
+			.collection(Collections.TemplatesPublicData)
+			.getOne(flow.credential_template);
 
-		const credentialSchema = (flow.expand as any).credential_template.schema as ObjectSchema;
+		const credentialSchema = publicData.schema as ObjectSchema;
 		const claims = getClaimInputsFromObjectSchema(credentialSchema);
-		return { flow, claims };
+		const issEndpoint = (flow.expand as any).credential_issuer.endpoint;
+		const fromattedIssEndpoint = formatMicroserviceUrl(issEndpoint, 'credential_issuer');
+		return { flow, claims, fromattedIssEndpoint };
 	}
 
 	async function handleFlowSelection(flowId: string | undefined) {
 		if (!flowId) return;
-		fetchFlowAndClaims(flowId).then(({ flow, claims: cs }) => {
+		fetchFlowAndClaims(flowId).then(({ flow, claims: cs, fromattedIssEndpoint }) => {
 			selectedIssuanceFlow = flow;
 			claims = cs;
+			issUrl = fromattedIssEndpoint;
 		});
 	}
 
-	$: if (claims && selectedIssuanceFlow) {
+	$: if (claims && selectedIssuanceFlow && issUrl) {
 		$form['dcql_query'] = JSON.stringify(
-			dcql.makeFromIssuanceFlowAndClaims(selectedIssuanceFlow, claims),
+			dcql.makeFromIssuanceFlowAndClaims(selectedIssuanceFlow, claims, issUrl),
 			null,
 			2
 		);
 	}
 
-	$: if ( $form['type'] === TemplatesTypeOptions.verification ) {
-		$form['schema'] = "";
+	$: if ($form['type'] === TemplatesTypeOptions.verification) {
+		$form['schema'] = '';
 	}
 
 	/* Code placeholders */
@@ -240,8 +250,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					label: m.Issuance_flows(),
 					inputMode: 'select',
 					displayFields: ['display_name', 'type_name'],
-					filter: `organization.id = '${initialData.organization}'`,
-					expand: 'credential_template',
 					placeholder: m.Select_option(),
 					formatRecord: formatServiceRecord,
 					onChange: handleFlowSelection
@@ -251,7 +259,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			<ClaimsEditor bind:claims />
 
-			<CodeEditorField {superform} field="dcql_query" label="{m.dcql_query()} (JSON)" lang="json" />
+			<div class="space-y-1">
+				<Label>{m.Preview()}</Label>
+				<CodeDisplay code={$form['dcql_query']} lang="json" />
+			</div>
 		</div>
 	{/if}
 
