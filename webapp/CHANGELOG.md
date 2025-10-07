@@ -1,3 +1,10 @@
+## [1.38.4](https://github.com/ForkbombEu/signroom/compare/v1.38.3...v1.38.4) (2025-10-07)
+
+
+### Bug Fixes
+
+* rebuild pages when orgnization id changes ([#1009](https://github.com/ForkbombEu/signroom/issues/1009)) ([f5dc49e](https://github.com/ForkbombEu/signroom/commit/f5dc49ec5fa0d73d5420a2442b4d43659f54cdd0))
+
 ## [1.38.3](https://github.com/ForkbombEu/signroom/compare/v1.38.2...v1.38.3) (2025-09-30)
 
 
