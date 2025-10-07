@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	//
 
 	export let code: string;
-	export let lang: 'json' | 'gherkin';
+	export let lang: string;
 
 	let highlightedCode = '';
 
