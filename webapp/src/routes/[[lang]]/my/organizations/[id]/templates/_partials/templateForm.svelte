@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		type ServicesResponse
 	} from '$lib/pocketbase/types.js';
 	import { fieldsSchemaToZod } from '$lib/pocketbaseToZod';
-	import { A, Alert, Button, Hr, Select, type SelectOptionType } from 'flowbite-svelte';
+	import { A, Alert, Button, Hr, Label, Select, type SelectOptionType } from 'flowbite-svelte';
 	import JSONSchemaInput from './JSONSchemaInput.svelte';
 	import SubmitButton from '$lib/forms/submitButton.svelte';
 	import FormError from '$lib/forms/formError.svelte';
@@ -36,6 +36,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		type ClaimInput
 	} from './claims';
 	import * as dcql from './dcql';
+	import CodeDisplay from '$lib/components/code-display.svelte';
 
 	//
 
@@ -126,7 +127,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	async function handleFlowSelection(flowId: string | undefined) {
 		if (!flowId) return;
-		fetchFlowAndClaims(flowId).then(({ flow, claims: cs , fromattedIssEndpoint }) => {
+		fetchFlowAndClaims(flowId).then(({ flow, claims: cs, fromattedIssEndpoint }) => {
 			selectedIssuanceFlow = flow;
 			claims = cs;
 			issUrl = fromattedIssEndpoint;
@@ -141,8 +142,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		);
 	}
 
-	$: if ( $form['type'] === TemplatesTypeOptions.verification ) {
-		$form['schema'] = "";
+	$: if ($form['type'] === TemplatesTypeOptions.verification) {
+		$form['schema'] = '';
 	}
 
 	/* Code placeholders */
@@ -258,15 +259,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			<ClaimsEditor bind:claims />
 
-			<div class="relative">
-				<CodeEditorField
-					{superform}
-					field="dcql_query"
-					label="{m.dcql_query()} (JSON)"
-					lang="json"
-				/>
-				<!-- Overlay blocks editing -->
-				<div class="absolute inset-0 z-10" style="pointer-events: all;"></div>
+			<div class="space-y-1">
+				<Label>{m.Preview()}</Label>
+				<CodeDisplay code={$form['dcql_query']} lang="json" />
 			</div>
 		</div>
 	{/if}
