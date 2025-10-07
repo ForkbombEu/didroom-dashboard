@@ -1,3 +1,10 @@
+## [1.38.6](https://github.com/ForkbombEu/signroom/compare/v1.38.5...v1.38.6) (2025-10-07)
+
+
+### Bug Fixes
+
+* **verification_template:** show issuance_flow that are public or the ones in the org that I am a member of ([#1011](https://github.com/ForkbombEu/signroom/issues/1011)) ([61dbef2](https://github.com/ForkbombEu/signroom/commit/61dbef27bbbadef47ab1ab508317d50ffeb4036e))
+
 ## [1.38.5](https://github.com/ForkbombEu/signroom/compare/v1.38.4...v1.38.5) (2025-10-07)
 
 
