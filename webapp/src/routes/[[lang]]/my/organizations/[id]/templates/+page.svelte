@@ -158,82 +158,84 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</Button>
 		{/if}
 
-		<CollectionManager
-			{recordType}
-			collection={Collections.Templates}
-			initialQueryParams={{
-				filter: calcPbFilter(templateFilter),
-				sort: 'type'
-			}}
-			formSettings={{
-				hide: { organization: organization.id },
-				components: {
-					schema: createFieldComponent(JSONSchemaInput),
-					description: createFieldComponent(Textarea, {
-						options: { placeholder: m.Enter_a_description_for_the_schema() }
-					})
-				}
-			}}
-			let:records
-		>
-			<svelte:fragment slot="emptyState">
-				<CollectionEmptyState hideCreateButton></CollectionEmptyState>
-			</svelte:fragment>
-
-			<SectionTitle tag="h5" {title} {description}>
-				<svelte:fragment slot="right">
-					<Button id="newTemplate" on:click={hideDrawer.off}>
-						{button}
-						<Icon src={Plus} ml />
-					</Button>
+		{#key organization.id}
+			<CollectionManager
+				{recordType}
+				collection={Collections.Templates}
+				initialQueryParams={{
+					filter: calcPbFilter(templateFilter),
+					sort: 'type'
+				}}
+				formSettings={{
+					hide: { organization: organization.id },
+					components: {
+						schema: createFieldComponent(JSONSchemaInput),
+						description: createFieldComponent(Textarea, {
+							options: { placeholder: m.Enter_a_description_for_the_schema() }
+						})
+					}
+				}}
+				let:records
+			>
+				<svelte:fragment slot="emptyState">
+					<CollectionEmptyState hideCreateButton></CollectionEmptyState>
 				</svelte:fragment>
-			</SectionTitle>
 
-			<div class="space-y-4">
-				{#each records as template}
-					<PlainCard let:Title let:Description>
-						<div class="flex items-center gap-2">
-							<Title>{template.name}</Title>
-							<Badge color={templatesColors[template.type]}>
-								{template.type}
-							</Badge>
-							{#if template.public}
-								<Badge color="dark">{m.Public()}</Badge>
-							{/if}
-						</div>
-						{#if template.description}
-							<Description>{template.description}</Description>
-						{/if}
+				<SectionTitle tag="h5" {title} {description}>
+					<svelte:fragment slot="right">
+						<Button id="newTemplate" on:click={hideDrawer.off}>
+							{button}
+							<Icon src={Plus} ml />
+						</Button>
+					</svelte:fragment>
+				</SectionTitle>
 
-						<TemplatePropertiesDisplay {template} />
-
-						<svelte:fragment slot="right">
-							<div class="flex gap-2">
-								<ProtectedOrgUI orgId={organization.id} roles={['admin', 'owner']}>
-									<Button
-										outline
-										on:click={() => {
-											templateFormId = template.id;
-											templateFormInitialData = template;
-											hideDrawer.off();
-										}}
-									>
-										Edit
-										<Icon src={Pencil} ml></Icon>
-									</Button>
-
-									<DeleteRecord record={template} let:openModal>
-										<Button outline on:click={openModal}>
-											<Icon src={Trash} />
-										</Button>
-									</DeleteRecord>
-								</ProtectedOrgUI>
+				<div class="space-y-4">
+					{#each records as template (template.id)}
+						<PlainCard let:Title let:Description>
+							<div class="flex items-center gap-2">
+								<Title>{template.name}</Title>
+								<Badge color={templatesColors[template.type]}>
+									{template.type}
+								</Badge>
+								{#if template.public}
+									<Badge color="dark">{m.Public()}</Badge>
+								{/if}
 							</div>
-						</svelte:fragment>
-					</PlainCard>
-				{/each}
-			</div>
-		</CollectionManager>
+							{#if template.description}
+								<Description>{template.description}</Description>
+							{/if}
+
+							<TemplatePropertiesDisplay {template} />
+
+							<svelte:fragment slot="right">
+								<div class="flex gap-2">
+									<ProtectedOrgUI orgId={organization.id} roles={['admin', 'owner']}>
+										<Button
+											outline
+											on:click={() => {
+												templateFormId = template.id;
+												templateFormInitialData = template;
+												hideDrawer.off();
+											}}
+										>
+											Edit
+											<Icon src={Pencil} ml></Icon>
+										</Button>
+
+										<DeleteRecord record={template} let:openModal>
+											<Button outline on:click={openModal}>
+												<Icon src={Trash} />
+											</Button>
+										</DeleteRecord>
+									</ProtectedOrgUI>
+								</div>
+							</svelte:fragment>
+						</PlainCard>
+					{/each}
+				</div>
+			</CollectionManager>
+		{/key}
 	</PageCard>
 </OrganizationLayout>
 
