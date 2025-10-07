@@ -74,10 +74,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	/* Preset application */
 
-	const presetsPromise: Promise<SelectOptionType<TemplatesRecord>[]> = pb
-		.collection('templates')
-		.getFullList({ filter: 'is_preset = true' })
-		.then((templates) => templates.map((t) => ({ name: t.name, value: t })));
+	async function getPresets(type: string) {
+		const presets = await pb
+			.collection('templates')
+			.getFullList({ filter: `is_preset = true && type = '${type}'`});
+		return presets.map((t) => ({name: t.name, value: t}))
+	}
 
 	let preset: TemplatesRecord | undefined = undefined;
 	$: handlePresetSelection(preset);
@@ -85,7 +87,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	function handlePresetSelection(selectedPreset: TemplatesRecord | undefined) {
 		if (!selectedPreset) return;
 		applyPreset(selectedPreset);
-		preset = undefined;
 	}
 
 	function applyPreset({ zencode_data, zencode_script, schema }: TemplatesRecord) {
@@ -199,7 +200,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	<div class="space-y-4">
 		<SectionTitle tag="h5" title={m.Load_preset()} description={m.load_preset_description()} />
-		{#await presetsPromise then presets}
+		{#await getPresets(type) then presets}
 			<Select items={presets} bind:value={preset} placeholder={m.Select_option()} />
 		{:catch _}
 			<Alert color="yellow">
