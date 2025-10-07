@@ -191,7 +191,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				</SectionTitle>
 
 				<div class="space-y-4">
-					{#each records as template}
+					{#each records as template (template.id)}
 						<PlainCard let:Title let:Description>
 							<div class="flex items-center gap-2">
 								<Title>{template.name}</Title>
