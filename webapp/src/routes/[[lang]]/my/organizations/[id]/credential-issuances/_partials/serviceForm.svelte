@@ -155,10 +155,19 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	const templateTypeProp = createTypeProp<Template>();
 
+	async function formatTeplateRecordWithoutExpand(t: Template) {
+		const isExternal = t.organization != organizationId;
+		if (!isExternal) return formatTeplateRecord(t);
+		const organization = await pb
+			.collection('organizations')
+			.getOne(t.organization, { requestKey: null })
+		t.expand = { organization }
+		return formatTeplateRecord(t)
+	}
 	function formatTeplateRecord(t: Template) {
 		const isExternal = t.organization != organizationId;
 		let label = [t.name];
-		if (isExternal) label.push(`(@${t.expand?.organization.name})`);
+		if (isExternal) label.push(`(@${(t.expand as any).organization.name})`);
 		if (Boolean(t.description)) label.push(` | ${t.description}`);
 		return label.join(' ');
 	}
@@ -268,7 +277,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				</svelte:fragment>
 				<svelte:fragment slot="default" let:record>
 					<div class="p-2">
-						<p>{formatTeplateRecord(record)}</p>
+						{#await formatTeplateRecordWithoutExpand(record) then label}
+							<p>{label}</p>
+						{/await}
 						<TemplatePropertiesDisplay template={record}></TemplatePropertiesDisplay>
 					</div>
 				</svelte:fragment>
@@ -297,7 +308,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				</svelte:fragment>
 				<svelte:fragment slot="default" let:record>
 					<div class="p-2">
-						<p>{formatTeplateRecord(record)}</p>
+						{#await formatTeplateRecordWithoutExpand(record) then label}
+							<p>{label}</p>
+						{/await}
 						<TemplatePropertiesDisplay template={record}></TemplatePropertiesDisplay>
 					</div>
 				</svelte:fragment>

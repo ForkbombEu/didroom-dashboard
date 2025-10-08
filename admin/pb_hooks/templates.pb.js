@@ -15,6 +15,10 @@ onRecordBeforeUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
+    if (utils.isAdminContext(e.httpContext)) {
+        return;
+    }
+
     /** @type {(keyof Template)[]} */
     const notEditableFields = ["organization", "type", "is_preset"];
 

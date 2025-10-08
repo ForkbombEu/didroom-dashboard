@@ -74,24 +74,30 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	/* Preset application */
 
-	const presetsPromise: Promise<SelectOptionType<TemplatesRecord>[]> = pb
-		.collection('templates')
-		.getFullList({ filter: 'is_preset = true' })
-		.then((templates) => templates.map((t) => ({ name: t.name, value: t })));
+	async function getPresets(type: string) {
+		const presets = await pb
+			.collection('templates')
+			.getFullList({ filter: `is_preset = true && type = '${type}'`});
+		return presets.map((t) => ({name: t.name, value: t}))
+	}
 
 	let preset: TemplatesRecord | undefined = undefined;
 	$: handlePresetSelection(preset);
 
-	function handlePresetSelection(selectedPreset: TemplatesRecord | undefined) {
+	async function handlePresetSelection(selectedPreset: TemplatesRecord | undefined) {
 		if (!selectedPreset) return;
-		applyPreset(selectedPreset);
-		preset = undefined;
+		await applyPreset(selectedPreset);
 	}
 
-	function applyPreset({ zencode_data, zencode_script, schema }: TemplatesRecord) {
+	async function applyPreset({ zencode_data, zencode_script, schema, issuance_flow }: TemplatesRecord) {
 		if (zencode_script) $form['zencode_script'] = zencode_script;
 		if (zencode_data) $form['zencode_data'] = zencode_data;
-		$form['schema'] = JSON.stringify(schema, null, 4);
+		if (type === 'verification') {
+			$form['issuance_flow'] = issuance_flow;
+			await handleFlowSelection(issuance_flow);
+		} else {
+			$form['schema'] = JSON.stringify(schema, null, 4);
+		}
 	}
 
 	/* issuer */
@@ -199,7 +205,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	<div class="space-y-4">
 		<SectionTitle tag="h5" title={m.Load_preset()} description={m.load_preset_description()} />
-		{#await presetsPromise then presets}
+		{#await getPresets(type) then presets}
 			<Select items={presets} bind:value={preset} placeholder={m.Select_option()} />
 		{:catch _}
 			<Alert color="yellow">

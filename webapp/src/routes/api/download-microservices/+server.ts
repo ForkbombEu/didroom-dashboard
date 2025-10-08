@@ -130,13 +130,17 @@ async function fetchOrganizationData(
 		filter: `organization.id = '${organizationId}'`,
 		fetch: fetchFn
 	};
+	const templatePbOptions: RecordFullListOptions = {
+		filter: `organization.id = '${organizationId}' || public = true`,
+		fetch: fetchFn
+	};
 
 	const issuance_flows = await pb
 		.collection('services')
 		.getFullList<ServicesResponse<Expiration>>(pbOptions);
 
 	const verification_flows = await pb.collection('verification_flows').getFullList(pbOptions);
-	const templates = await pb.collection('templates').getFullList(pbOptions);
+	const templates = await pb.collection('templates').getFullList(templatePbOptions);
 
 	const relying_parties = (await pb.collection('relying_parties').getFullList(pbOptions)).filter(
 		(rp) => verification_flows.map((vf) => vf.relying_party).includes(rp.id)
