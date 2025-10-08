@@ -160,7 +160,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		if (!isExternal) return formatTeplateRecord(t);
 		const organization = await pb
 			.collection('organizations')
-			.getOne(t.organization)
+			.getOne(t.organization, { requestKey: null })
 		t.expand = { organization }
 		return formatTeplateRecord(t)
 	}
