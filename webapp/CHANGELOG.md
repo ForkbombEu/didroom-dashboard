@@ -1,3 +1,10 @@
+## [1.38.7](https://github.com/ForkbombEu/signroom/compare/v1.38.6...v1.38.7) (2025-10-08)
+
+
+### Bug Fixes
+
+* enable template editing from admin dashboard ([#1014](https://github.com/ForkbombEu/signroom/issues/1014)) ([4eacc2c](https://github.com/ForkbombEu/signroom/commit/4eacc2c3665e9ff9063c755b1e3d90edf828553c))
+
 ## [1.38.6](https://github.com/ForkbombEu/signroom/compare/v1.38.5...v1.38.6) (2025-10-07)
 
 
