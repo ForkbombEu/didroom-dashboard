@@ -76,7 +76,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					src={`${assets}/app-didroom-verifier.svg`}
 				/>
 				<div class="space-y-2">
-					<Button outline target="_blank" href="https://github.com/ForkbombEu/verifier/">
+					<Button outline target="_blank" href="https://didroom.com/guides/Verifier/web-verifier.html">
 						{m.Github()}
 						<Icon src={ArrowTopRightOnSquare} ml></Icon>
 					</Button>
