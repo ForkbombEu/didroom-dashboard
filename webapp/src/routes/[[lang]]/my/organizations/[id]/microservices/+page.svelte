@@ -73,7 +73,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 						</CopyButton>
 						<IconButton
 							icon={QuestionMarkCircle}
-							href="https://didroom.com/guides/Sysadmin/deploy_microservices.html"
+							href="https://didroom.com/guides/Orgadmin/microservices-provision-deployment.html"
 							target="_blank"
 						/>
 					</div>
