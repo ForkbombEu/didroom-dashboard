@@ -23,7 +23,7 @@ export type ClaimInput = z.infer<typeof claimInputSchema>;
 
 export type Claim = {
 	path: string[];
-	values: string[] | number[] | boolean[];
+	values?: string[] | number[] | boolean[] | undefined;
 };
 
 export function getClaimInputsFromTemplate(data: Partial<TemplatesRecord>): ClaimInput[] {
@@ -51,7 +51,10 @@ export function inputToClaim(
 	claim: ClaimInput,
 	editPath: (id: string) => string[] = (id) => [id]
 ): Claim {
-	const rawValues = claim.values.split(',').map(String.trim).filter(String.isNonEmpty);
+	const rawValues = claim.values.split(',').map(String.trim).filter(String.isNonEmpty) as Claim['values'];
+	const path = editPath(claim.id);
+	console.log(rawValues)
+	if (!rawValues || rawValues.length === 0) return {path}
 	let values: Claim['values'] = [];
 	switch (claim.type) {
 		case 'string':
