@@ -53,8 +53,7 @@ export function inputToClaim(
 ): Claim {
 	const rawValues = claim.values.split(',').map(String.trim).filter(String.isNonEmpty) as Claim['values'];
 	const path = editPath(claim.id);
-	console.log(rawValues)
-	if (!rawValues || rawValues.length === 0) return {path}
+	if (!rawValues || rawValues.length === 0) return {path};
 	let values: Claim['values'] = [];
 	switch (claim.type) {
 		case 'string':
