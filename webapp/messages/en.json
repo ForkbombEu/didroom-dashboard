@@ -391,5 +391,8 @@
 	"number_type": "Number",
 	"boolean_type": "Boolean",
 	"Download_via_curl": "Download via curl",
-	"curl_copied_to_clipboard": "The curl command to download the microservices has been copied to the Clipboard."
+	"curl_copied_to_clipboard": "The curl command to download the microservices has been copied to the Clipboard.",
+	"no_qr_code_issuer_not_yet_deployed": "QR not generated: issuer not yet deployed",
+	"no_qr_code_issuance_flow_not_yet_deployed": "QR not generated: issuance flow not yet deployed",
+	"no_qr_code_generic": "QR not generated: issuer unreachable or not ready"
 }

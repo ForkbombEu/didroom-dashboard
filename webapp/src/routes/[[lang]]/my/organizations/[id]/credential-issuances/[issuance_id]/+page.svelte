@@ -5,6 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Button, Heading } from 'flowbite-svelte';
 	import { ArrowTopRightOnSquare, Pencil, QuestionMarkCircle } from 'svelte-heros-v2';
 	import { createIntentUrl, generateQr } from '$lib/qrcode';
@@ -29,18 +30,47 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		service.expand!);
 
 	//
-
-	$: issuanceFlowQr = generateQr(
-		createIntentUrl({
-			credential_configuration_ids: [service.type_name],
-			credential_issuer: formatMicroserviceUrl(credential_issuer.endpoint, 'credential_issuer'),
-			grants: {
-				authorization_code: {
-					authorization_server: formatMicroserviceUrl(authorization_server.endpoint, 'authz_server'),
-				}
+	let issuanceFlowQr: string | null = null;
+	let error: string | null = null;
+	onMount(async () => {
+		try {
+			const wellKnownUrl = `${formatMicroserviceUrl(credential_issuer.endpoint, 'credential_issuer')}/.well-known/openid-credential-issuer`;
+			const res = await fetch(wellKnownUrl);
+			if (!res.ok) {
+				error = m.no_qr_code_issuer_not_yet_deployed();
+				return;
 			}
-		})
-	);
+
+			const metadata = await res.json();
+
+			// Check if the issuance flow is supported
+			if (!metadata.credential_configurations_supported?.[service.type_name]) {
+				error = m.no_qr_code_issuance_flow_not_yet_deployed();
+				return;
+			}
+
+			// Conditionally include authorization_server only if needed
+			let grants;
+			if (metadata.authorization_servers && metadata.authorization_servers.length > 1) {
+				grants = {
+					authorization_code: {
+						authorization_server: formatMicroserviceUrl(authorization_server.endpoint,'authz_server')
+					}
+				};
+			}
+
+			const credentialOffer = createIntentUrl({
+				credential_configuration_ids: [service.type_name],
+				credential_issuer: formatMicroserviceUrl(credential_issuer.endpoint, 'credential_issuer'),
+				grants
+			});
+			issuanceFlowQr = generateQr(credentialOffer);
+			console.log(credentialOffer)
+		} catch (e) {
+			console.error('Error generating QR code:', e);
+			error = m.no_qr_code_generic();
+		}
+	});
 
 	//
 
@@ -113,13 +143,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<PageCard class="w-[300px] shrink-0 !space-y-4 !p-4">
 			<div class="flex flex-col items-center gap-2 self-stretch rounded-lg border bg-gray-50 p-4">
-				<img src={issuanceFlowQr} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
-				<Button outline class="mt-4" size="sm" disabled>
-					<span class="whitespace-nowrap">
-						{m.Open_qr_code_in_new_page()}
-					</span>
-					<Icon src={ArrowTopRightOnSquare} ml></Icon>
-				</Button>
+				{#if error}
+					<p class="text-gray-500">{error}</p>
+				{:else}
+					<img src={issuanceFlowQr} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
+					<Button outline class="mt-4" size="sm" disabled>
+						<span class="whitespace-nowrap">
+							{m.Open_qr_code_in_new_page()}
+						</span>
+						<Icon src={ArrowTopRightOnSquare} ml></Icon>
+					</Button>
+				{/if}
 			</div>
 
 			<div class="mt-6 space-y-2">

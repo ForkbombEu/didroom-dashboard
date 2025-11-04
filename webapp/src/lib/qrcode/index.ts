@@ -11,7 +11,7 @@ type CredentialConfig = {
 		authorization_code: {
 			authorization_server: string;
 		}
-	}
+	} | undefined;
 };
 
 export function createIntentUrl(data: CredentialConfig): string {
