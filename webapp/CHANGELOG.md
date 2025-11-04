@@ -1,3 +1,10 @@
+## [1.38.8](https://github.com/ForkbombEu/signroom/compare/v1.38.7...v1.38.8) (2025-11-04)
+
+
+### Bug Fixes
+
+* **dcql:** add values to claims only if it is not empty ([#1020](https://github.com/ForkbombEu/signroom/issues/1020)) ([c0fdf02](https://github.com/ForkbombEu/signroom/commit/c0fdf021a32473f0916edefa2d57b28c9d0eaa59))
+
 ## [1.38.7](https://github.com/ForkbombEu/signroom/compare/v1.38.6...v1.38.7) (2025-10-08)
 
 
