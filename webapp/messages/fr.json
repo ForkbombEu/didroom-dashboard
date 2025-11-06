@@ -239,8 +239,6 @@
 	"microservice_name_description": "Il s'agit du nom du microservice, qui sera visible par les utilisateurs finaux",
 	"microservice_endpoint_description": "URL du microservice, utilisé par les protocoles de communication et visible par les utilisateurs finaux et les autres microservices",
 	"Select_language": "Sélectionner la langue",
-	"verification_flow_qr_code_title": "Générer des codes QR de vérification à l'aide de l'application Verifier",
-	"verification_flow_qr_code_description": "Le code QR pour la vérification est généré par l'application DIDroom Verifier. Installez l'application de vérification, connectez-vous avec un compte lié à cette organisation et démarrez le processus de vérification à partir de là.",
 	"Help": "Aide",
 	"Github": "Github",
 	"issuance_flow_qr_code_title": "Autoriser les utilisateurs à scanner le code QR avec l'application Wallet pour récupérer leurs identifiants",

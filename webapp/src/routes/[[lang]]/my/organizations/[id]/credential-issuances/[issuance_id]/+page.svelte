@@ -65,7 +65,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				grants
 			});
 			issuanceFlowQr = generateQr(credentialOffer);
-			console.log(credentialOffer)
 		} catch (e) {
 			console.error('Error generating QR code:', e);
 			error = m.no_qr_code_generic();

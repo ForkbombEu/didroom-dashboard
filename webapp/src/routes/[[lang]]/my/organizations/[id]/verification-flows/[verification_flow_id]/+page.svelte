@@ -5,6 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Button, Heading } from 'flowbite-svelte';
 	import { QuestionMarkCircle, Pencil, ArrowTopRightOnSquare } from 'svelte-heros-v2';
 	import { m } from '$lib/i18n';
@@ -17,14 +18,34 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { page } from '$app/stores';
 	import { ProtectedOrgUI } from '$lib/organizations';
 	import TemplateSchemaDisplay from '$lib/components/templateSchemaDisplay.svelte';
+	import { formatMicroserviceUrl } from '$lib/microservices';
 	import { assets } from '$app/paths';
 
 	//
 
 	export let data;
 
-	$: ({ verificationFlow, organization } = data);
+	$: ({ verificationFlow, organization, verification_flow_id } = data);
 	$: ({ template, relying_party } = verificationFlow.expand!);
+
+	let verificationFlowQr: string | null = null;
+	let error: string | null = null;
+	onMount(async () => {
+		try {
+			const deeplinkUrl = `${formatMicroserviceUrl(relying_party.endpoint, 'verifier')}/${verification_flow_id}/qrcode`;
+			const res = await fetch(deeplinkUrl);
+			if (!res.ok) {
+				error = m.no_qr_code_verifier_not_yet_deployed();
+				return;
+			}
+			const response = await res.json();
+			verificationFlowQr = response.qrcode;
+		} catch (e) {
+			console.error('Error generating QR code:', e);
+			error = m.no_qr_code_verifier_not_yet_deployed();
+		}
+	});
+
 </script>
 
 <PageTop>
@@ -66,14 +87,30 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</PageCard>
 
 		<PageCard class="w-[300px] shrink-0 !space-y-4 !p-4">
-			<Heading tag="h5">{m.verification_flow_qr_code_title()}</Heading>
-			<p class="text-gray-500">{m.verification_flow_qr_code_description()}</p>
+			<div class="flex flex-col items-center gap-2 self-stretch rounded-lg border bg-gray-50 p-4">
+				{#if error}
+					<p class="text-gray-500">{error}</p>
+				{:else}
+					<img src={verificationFlowQr} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
+					<Button outline class="mt-4" size="sm" disabled>
+						<span class="whitespace-nowrap">
+							{m.Open_qr_code_in_new_page()}
+						</span>
+						<Icon src={ArrowTopRightOnSquare} ml></Icon>
+					</Button>
+				{/if}
+			</div>
+
+			<div class="mt-6 space-y-2">
+				<Heading tag="h5">{m.verification_flow_qr_code_title()}</Heading>
+				<p class="text-gray-500">{m.verification_flow_qr_code_description()}</p>
+			</div>
 
 			<div class="flex gap-4">
 				<img
-					alt="Didroom Verifier app logo"
+					alt="Didroom Wallet app logo"
 					class="h-[100px] w-[100px] rounded-lg"
-					src={`${assets}/app-didroom-verifier.svg`}
+					src={`${assets}/app-didroom.svg`}
 				/>
 				<div class="space-y-2">
 					<Button outline target="_blank" href="https://didroom.com/guides/Verifier/web-verifier.html">
@@ -83,7 +120,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					<Button
 						outline
 						target="_blank"
-						href="https://didroom.com/guides/Verifier/verifier.html"
+						href="https://didroom.com/guides/Verifier/web-verifier.html"
 					>
 						{m.Help()}
 						<Icon src={QuestionMarkCircle} ml></Icon>

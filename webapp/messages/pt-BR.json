@@ -235,8 +235,6 @@
 	"microservice_name_description": "Este é o nome dos microsserviços que ficarão visíveis para os usuários finais",
 	"microservice_endpoint_description": "Ponto final dos microsserviços, usado por protocolos de comunicação e visível por usuários finais e outros microsserviços",
 	"Select_language": "Selecione o idioma",
-	"verification_flow_qr_code_title": "Gere código(s) QR de verificação usando o aplicativo Verifier",
-	"verification_flow_qr_code_description": "O código QR para a verificação é gerado pelo aplicativo DIDroom Verifier. Instale o aplicativo verificador, faça login com uma conta conectada a esta organização e inicie o fluxo de verificação a partir daí.",
 	"Help": "Ajuda",
 	"Github": "Github",
 	"Open_qr_code_in_new_page": "Abrir código qr em nova página",
