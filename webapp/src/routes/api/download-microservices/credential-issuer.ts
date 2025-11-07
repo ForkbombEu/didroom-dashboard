@@ -314,6 +314,7 @@ type Keys = {
   };
   deeplink_path?: string;
   qrcode_path?: string;
+  command?: string;
 }
 function add_public_pages(zip: AdmZip, credential_issuer: IssuersResponse, credential_issuer_related_data: CredentialIssuerRelatedData) {
   const { authorization_servers, issuance_flows } = credential_issuer_related_data;
@@ -345,7 +346,8 @@ function add_public_pages(zip: AdmZip, credential_issuer: IssuersResponse, crede
     };
     add_pages(zip, public_path, issuance_flow.id, keys, 'deeplink')
     delete keys.deeplink_path;
-    keys.qrcode_path = `${issuance_path}/qrcode`
+    keys.qrcode_path = `${issuance_path}/qrcode`;
+    keys.command = `./scripts/qrcode.sh ${keys.qrcode_path}`;
     add_pages(zip, public_path, issuance_flow.id, keys, 'qrcode')
   });
 }
