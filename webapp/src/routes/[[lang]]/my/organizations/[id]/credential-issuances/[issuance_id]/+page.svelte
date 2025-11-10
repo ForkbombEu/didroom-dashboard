@@ -5,10 +5,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { Button, Heading } from 'flowbite-svelte';
 	import { ArrowTopRightOnSquare, Pencil, QuestionMarkCircle } from 'svelte-heros-v2';
-	import { createIntentUrl, generateQr } from '$lib/qrcode';
 	import { m } from '$lib/i18n';
 	import PageTop from '$lib/components/pageTop.svelte';
 	import PageContent from '$lib/components/pageContent.svelte';
@@ -30,45 +29,29 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		service.expand!);
 
 	//
-	let issuanceFlowQr: string | null = null;
+	let issuanceFlowQrUrl: string | null = null;
+	let qrUrl: string | undefined;
 	let error: string | null = null;
 	onMount(async () => {
 		try {
-			const wellKnownUrl = `${formatMicroserviceUrl(credential_issuer.endpoint, 'credential_issuer')}/.well-known/openid-credential-issuer`;
-			const res = await fetch(wellKnownUrl);
+			qrUrl = `${formatMicroserviceUrl(credential_issuer.endpoint, 'credential_issuer')}/${service.id}/qrcode`;
+			const res = await fetch(qrUrl);
 			if (!res.ok) {
+				qrUrl = undefined;
 				error = m.no_qr_code_issuer_not_yet_deployed();
 				return;
 			}
-
-			const metadata = await res.json();
-
-			// Check if the issuance flow is supported
-			if (!metadata.credential_configurations_supported?.[service.type_name]) {
-				error = m.no_qr_code_issuance_flow_not_yet_deployed();
-				return;
-			}
-
-			// Conditionally include authorization_server only if needed
-			let grants;
-			if (metadata.authorization_servers && metadata.authorization_servers.length > 1) {
-				grants = {
-					authorization_code: {
-						authorization_server: formatMicroserviceUrl(authorization_server.endpoint,'authz_server')
-					}
-				};
-			}
-
-			const credentialOffer = createIntentUrl({
-				credential_configuration_ids: [service.type_name],
-				credential_issuer: formatMicroserviceUrl(credential_issuer.endpoint, 'credential_issuer'),
-				grants
-			});
-			issuanceFlowQr = generateQr(credentialOffer);
+			const response = await res.blob();
+			issuanceFlowQrUrl = URL.createObjectURL(response);
 		} catch (e) {
+			qrUrl = undefined;
 			console.error('Error generating QR code:', e);
-			error = m.no_qr_code_generic();
+			error = m.no_qr_code_issuer_not_yet_deployed();
 		}
+	});
+
+	onDestroy(() => {
+		if (issuanceFlowQrUrl) URL.revokeObjectURL(issuanceFlowQrUrl);
 	});
 
 	//
@@ -145,8 +128,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				{#if error}
 					<p class="text-gray-500">{error}</p>
 				{:else}
-					<img src={issuanceFlowQr} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
-					<Button outline class="mt-4" size="sm" disabled>
+					<img src={issuanceFlowQrUrl} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
+					<Button
+						outline
+						class="mt-4"
+						size="sm"
+						href={qrUrl}
+					>
 						<span class="whitespace-nowrap">
 							{m.Open_qr_code_in_new_page()}
 						</span>

@@ -29,18 +29,21 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	$: ({ template, relying_party } = verificationFlow.expand!);
 
 	let verificationFlowQrUrl: string | null = null;
+	let qrUrl: string | undefined;
 	let error: string | null = null;
 	onMount(async () => {
 		try {
-			const deeplinkUrl = `${formatMicroserviceUrl(relying_party.endpoint, 'verifier')}/${verification_flow_id}/qrcode`;
-			const res = await fetch(deeplinkUrl);
+			qrUrl = `${formatMicroserviceUrl(relying_party.endpoint, 'verifier')}/${verification_flow_id}/qrcode`;
+			const res = await fetch(qrUrl);
 			if (!res.ok) {
+				qrUrl = undefined;
 				error = m.no_qr_code_verifier_not_yet_deployed();
 				return;
 			}
 			const response = await res.blob();
 			verificationFlowQrUrl = URL.createObjectURL(response);
 		} catch (e) {
+			qrUrl = undefined;
 			console.error('Error generating QR code:', e);
 			error = m.no_qr_code_verifier_not_yet_deployed();
 		}
@@ -96,7 +99,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					<p class="text-gray-500">{error}</p>
 				{:else}
 					<img src={verificationFlowQrUrl} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
-					<Button outline class="mt-4" size="sm" disabled>
+					<Button
+						outline
+						class="mt-4"
+						size="sm"
+						href={qrUrl}
+					>
 						<span class="whitespace-nowrap">
 							{m.Open_qr_code_in_new_page()}
 						</span>
