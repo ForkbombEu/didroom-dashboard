@@ -15,7 +15,7 @@ import type { ValueOf } from '$lib/utils/types';
 import { cleanUrl } from '$lib/microservices';
 
 import { config } from './config';
-import { get_zip_root_folder, prepend_zip_root_folder, update_zip_entry } from './utils/zip';
+import { get_zip_root_folder, prepend_zip_root_folder, update_zip_entry, copy_and_modify_zip_entry } from './utils/zip';
 import { createSlug } from './utils/strings';
 import { PUBLIC_DIDROOM_MICROSERVICES_BRANCH } from '$env/static/public';
 
@@ -167,4 +167,38 @@ COPY public/${microservice} /app/public/${microservice}
 		default:
 			return dockerfile;
 	}
+}
+
+// qrcode pages
+
+export function add_qrcode_pages(zip: AdmZip, public_path: string, id: string, keys: Record<string, unknown>, name: 'deeplink' | 'qrcode'): void {
+	const dest_path = `${public_path}/${id}`
+	copy_and_modify_zip_entry(
+		zip,
+		`${public_path}/.${name}.slang`,
+		`${dest_path}/.${name}.slang`,
+		(c: string) => c
+	)
+	copy_and_modify_zip_entry(
+		zip,
+		`${public_path}/.${name}.keys.json`,
+		`${dest_path}/.${name}.keys.json`,
+		(c: string) => JSON.stringify(keys)
+	)
+	copy_and_modify_zip_entry(
+		zip,
+		`${public_path}/${name}`,
+		`${dest_path}/${name}`,
+		(c: string) => c
+	)
+	copy_and_modify_zip_entry(
+		zip,
+		`${public_path}/${name}.metadata.json`,
+		`${dest_path}/${name}.metadata.json`,
+		(c: string) => {
+			const j = JSON.parse(c);
+			j.precondition = `${id}/.${name}`
+			return JSON.stringify(j);
+		}
+	)
 }

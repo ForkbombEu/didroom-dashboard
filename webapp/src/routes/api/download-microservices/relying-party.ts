@@ -7,6 +7,7 @@ import { String as S, pipe, Array as A, Option as O } from 'effect';
 import _ from 'lodash/fp';
 
 import type { VerificationFlowsResponse, TemplatesResponse, RelyingPartiesResponse } from '$lib/pocketbase/types';
+import { formatMicroserviceUrl } from '$lib/microservices';
 import type { DownloadMicroservicesRequestBody } from '.';
 
 import {
@@ -14,7 +15,8 @@ import {
 	add_microservice_dockerfile,
 	add_microservice_env,
 	delete_tests,
-	delete_unused_folders
+	delete_unused_folders,
+	add_qrcode_pages,
 } from './shared-operations';
 import { copy_and_modify_zip_entry, update_zip_entry } from './utils/zip';
 import { config } from './config';
@@ -31,7 +33,7 @@ export function create_verifier_zip(
 		request_body,
 		verifier
 	);
-	edit_html(zip, verifier_related_data);
+	add_discover_pages(zip, verifier, verifier_related_data);
 	add_credentials_custom_code(zip, verifier_related_data);
 	add_microservice_env(zip, verifier);
 	add_microservice_dockerfile(zip, verifier, config.folder_names.microservices.verifier);
@@ -80,8 +82,8 @@ function add_credentials_custom_code(
 		({ verification_template }) => {
 			const meta = JSON.parse(verification_template.dcql_query).credentials[0].meta;
 			let type;
-			if ( meta.vct_values ) type = meta.vct_values[0];
-			else if ( meta.type_values ) type = meta.type_values[0][0];
+			if (meta.vct_values) type = meta.vct_values[0];
+			else if (meta.type_values) type = meta.type_values[0][0];
 			add_credential_custom_code(
 				zip,
 				config.folder_names.microservices.verifier,
@@ -94,17 +96,37 @@ function add_credentials_custom_code(
 
 /* Zip editing */
 
-function edit_html(
+type VerifierKeys = {
+	verifier_endpoint: string;
+	object: {
+		response_mode: string;
+		response_type: string;
+		dcql_query: Record<string, unknown>;
+		url: string;
+	};
+	deeplink_path?: string;
+	qrcode_path?: string;
+	command?: string;
+}
+
+function add_discover_pages(
 	zip: AdmZip,
+	verifier: RelyingPartiesResponse,
 	verifier_related_data: VerifierRelatedData
 ) {
-	const verifierList: {name: string, description: string, url: string}[] = [];
+	const base_verifier_endpoint = formatMicroserviceUrl(
+		verifier.endpoint,
+		config.folder_names.microservices.verifier
+	);
+	const verifierList: { name: string, description: string, url: string }[] = [];
 	verifier_related_data.verifications.forEach(
 		({ verification_flow, verification_template }) => {
+			// details page
+			const details_page = `${verification_flow.id}/${config.file_names.details}`;
 			copy_and_modify_zip_entry(
 				zip,
-				get_verifier_index_path(),
-				get_verifier_index_path(verification_flow.id),
+				get_verifier_public_path_to(config.file_names.index),
+				get_verifier_public_path_to(details_page),
 				(default_html: string) => {
 					// Replace "Verify with Didroom" line with title
 					const verifyRegex = /^(\s*.*Verify with Didroom)(.*)$/m;
@@ -124,36 +146,55 @@ function edit_html(
 			);
 			copy_and_modify_zip_entry(
 				zip,
-				get_verifier_index_path(undefined, true),
-				get_verifier_index_path(verification_flow.id, true),
+				get_verifier_public_path_to(config.file_names.index, true),
+				get_verifier_public_path_to(details_page, true),
 				(default_metadata: string) => default_metadata
 			);
 			verifierList.push({
 				name: verification_flow.name,
 				description: verification_flow.description,
-				url: `./${verification_flow.id}`
+				url: `./${details_page}`
 			});
+			// deeplink and qrcode page
+			const deeplink_page = `${verification_flow.id}/${config.file_names.deeplink}`;
+			const qrcode_page = `${verification_flow.id}/${config.file_names.qrcode}`;
+			const public_path = `${config.folder_names.public}/${config.folder_names.microservices.verifier}`;
+			const keys: VerifierKeys = {
+				verifier_endpoint: `${base_verifier_endpoint}/generate_authorization_request`,
+				object: {
+					response_mode: "direct_post",
+					response_type: "vp_token",
+					dcql_query: JSON.parse(verification_template.dcql_query),
+					url: `${base_verifier_endpoint}/`
+				},
+				deeplink_path: get_verifier_public_path_to(deeplink_page)
+			};
+			add_qrcode_pages(zip, public_path, verification_flow.id, keys, config.file_names.deeplink);
+			delete keys.deeplink_path;
+			keys.qrcode_path = get_verifier_public_path_to(qrcode_page);
+			keys.command = `./scripts/qrcode.sh ${keys.qrcode_path}`;
+			add_qrcode_pages(zip, public_path, verification_flow.id, keys, config.file_names.qrcode);
 		}
 	);
 	update_zip_entry(
 		zip,
 		get_verifier_list_path(),
-		(content:string) => {
+		(content: string) => {
 			const listRegex = /^\s*const flows = '';/m;
 			return content.replace(listRegex, `        const flows = ${JSON.stringify(verifierList)};`);
 		}
 	);
 }
 
-function get_verifier_index_path(
-	verification_flow_name?: string,
+function get_verifier_public_path_to(
+	verification_flow_name: string,
 	metadata: boolean = false,
 ) {
 	const m = metadata ? '.metadata.json' : '';
 	return [
 		config.folder_names.public,
 		config.folder_names.microservices.verifier,
-		(verification_flow_name ?? config.file_names.index) + m,
+		verification_flow_name + m,
 	].join('/');
 }
 

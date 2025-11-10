@@ -20,6 +20,7 @@ import {
 	add_credential_custom_code,
 	add_microservice_dockerfile,
 	add_microservice_env,
+	add_qrcode_pages,
 	delete_tests,
 	delete_unused_folders,
 	get_credential_custom_code_path,
@@ -50,7 +51,7 @@ export function create_credential_issuer_zip(
 
 	edit_credential_issuer_well_known(zip, credential_issuer, credential_issuer_related_data);
 	add_credentials_custom_code(zip, credential_issuer_related_data.issuance_flows);
-	add_public_pages(zip, credential_issuer, credential_issuer_related_data)
+	add_discover_pages(zip, credential_issuer, credential_issuer_related_data)
 	add_microservice_env(zip, credential_issuer);
 	add_microservice_dockerfile(zip, credential_issuer, config.folder_names.microservices.credential_issuer);
 	delete_unused_folders(zip, config.folder_names.microservices.credential_issuer);
@@ -269,85 +270,52 @@ type LuaExpiration = {
 	};
 };
 
-/* edit_public_pages */
+/* add_qrcode_pages */
 
-function add_pages(zip: AdmZip, public_path: string, id: string, keys: Record<string, unknown>, name: 'deeplink' | 'qrcode'): void {
-  const issuance_path = `${public_path}/${id}`
-  copy_and_modify_zip_entry(
-    zip,
-    `${public_path}/.${name}.slang`,
-    `${issuance_path}/.${name}.slang`,
-    (c: string) => c
-  )
-  copy_and_modify_zip_entry(
-    zip,
-    `${public_path}/.${name}.keys.json`,
-    `${issuance_path}/.${name}.keys.json`,
-    (c: string) => JSON.stringify(keys)
-  )
-  copy_and_modify_zip_entry(
-    zip,
-    `${public_path}/${name}`,
-    `${issuance_path}/${name}`,
-    (c: string) => c
-  )
-  copy_and_modify_zip_entry(
-    zip,
-    `${public_path}/${name}.metadata.json`,
-    `${issuance_path}/${name}.metadata.json`,
-    (c: string) => {
-      const j = JSON.parse(c);
-      j.precondition = `${id}/.${name}`
-      return JSON.stringify(j);
-    }
-  )
+type IssuerKeys = {
+	offer: {
+		credential_configuration_ids: string[];
+		credential_issuer: string;
+		grants?: {
+			authorization_code: {
+				authorization_server: string;
+			};
+		};
+	};
+	deeplink_path?: string;
+	qrcode_path?: string;
+	command?: string;
 }
-type Keys = {
-  offer: {
-    credential_configuration_ids: string[];
-    credential_issuer: string;
-    grants?: {
-      authorization_code: {
-        authorization_server: string;
-      };
-    };
-  };
-  deeplink_path?: string;
-  qrcode_path?: string;
-  command?: string;
-}
-function add_public_pages(zip: AdmZip, credential_issuer: IssuersResponse, credential_issuer_related_data: CredentialIssuerRelatedData) {
-  const { authorization_servers, issuance_flows } = credential_issuer_related_data;
-  let useGrant = false;
-  if (authorization_servers.length > 1) {
-    useGrant = true;
-  }
-  const ci = formatMicroserviceUrl(
-    credential_issuer.endpoint,
-    config.folder_names.microservices.credential_issuer
-  );
-  const r = issuance_flows.map((issuance_flow) => {
-    const public_path = `${config.folder_names.public}/${config.folder_names.microservices.credential_issuer}`;
-    const issuance_path = `${public_path}/${issuance_flow.id}`;
-    const as = authorization_servers.find((a) => a.id === issuance_flow.authorization_server);
-    const keys: Keys = {
-      offer: {
-        credential_configuration_ids: [issuance_flow.type_name],
-        credential_issuer: ci
-      },
-      deeplink_path: `${issuance_path}/deeplink`
-    };
-    if (useGrant) {
-      keys.offer['grants'] = {
-        authorization_code: {
-          authorization_server: `${as}`
-        }
-      }
-    };
-    add_pages(zip, public_path, issuance_flow.id, keys, 'deeplink')
-    delete keys.deeplink_path;
-    keys.qrcode_path = `${issuance_path}/qrcode`;
-    keys.command = `./scripts/qrcode.sh ${keys.qrcode_path}`;
-    add_pages(zip, public_path, issuance_flow.id, keys, 'qrcode')
-  });
+
+function add_discover_pages(zip: AdmZip, credential_issuer: IssuersResponse, credential_issuer_related_data: CredentialIssuerRelatedData) {
+	const { authorization_servers, issuance_flows } = credential_issuer_related_data;
+	let useGrant = authorization_servers.length > 1;
+	const ci = formatMicroserviceUrl(
+		credential_issuer.endpoint,
+		config.folder_names.microservices.credential_issuer
+	);
+	issuance_flows.map((issuance_flow) => {
+		const public_path = `${config.folder_names.public}/${config.folder_names.microservices.credential_issuer}`;
+		const issuance_path = `${public_path}/${issuance_flow.id}`;
+		const as = authorization_servers.find((a) => a.id === issuance_flow.authorization_server);
+		const keys: IssuerKeys = {
+			offer: {
+				credential_configuration_ids: [issuance_flow.type_name],
+				credential_issuer: ci
+			},
+			deeplink_path: `${issuance_path}/${config.file_names.deeplink}`
+		};
+		if (useGrant) {
+			keys.offer.grants = {
+				authorization_code: {
+					authorization_server: `${as}`
+				}
+			}
+		};
+		add_qrcode_pages(zip, public_path, issuance_flow.id, keys, config.file_names.deeplink);
+		delete keys.deeplink_path;
+		keys.qrcode_path = `${issuance_path}/${config.file_names.qrcode}`;
+		keys.command = `./scripts/qrcode.sh ${keys.qrcode_path}`;
+		add_qrcode_pages(zip, public_path, issuance_flow.id, keys, config.file_names.qrcode);
+	});
 }
