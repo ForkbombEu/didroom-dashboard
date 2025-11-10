@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { Button, Heading } from 'flowbite-svelte';
 	import { QuestionMarkCircle, Pencil, ArrowTopRightOnSquare } from 'svelte-heros-v2';
 	import { m } from '$lib/i18n';
@@ -28,7 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	$: ({ verificationFlow, organization, verification_flow_id } = data);
 	$: ({ template, relying_party } = verificationFlow.expand!);
 
-	let verificationFlowQr: string | null = null;
+	let verificationFlowQrUrl: string | null = null;
 	let error: string | null = null;
 	onMount(async () => {
 		try {
@@ -38,12 +38,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				error = m.no_qr_code_verifier_not_yet_deployed();
 				return;
 			}
-			const response = await res.json();
-			verificationFlowQr = response.qrcode;
+			const response = await res.blob();
+			verificationFlowQrUrl = URL.createObjectURL(response);
 		} catch (e) {
 			console.error('Error generating QR code:', e);
 			error = m.no_qr_code_verifier_not_yet_deployed();
 		}
+	});
+
+	onDestroy(() => {
+		if (verificationFlowQrUrl) URL.revokeObjectURL(verificationFlowQrUrl);
 	});
 
 </script>
@@ -91,7 +95,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				{#if error}
 					<p class="text-gray-500">{error}</p>
 				{:else}
-					<img src={verificationFlowQr} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
+					<img src={verificationFlowQrUrl} alt={m.Service_Qr_Code()} class="w-40 rounded-lg" />
 					<Button outline class="mt-4" size="sm" disabled>
 						<span class="whitespace-nowrap">
 							{m.Open_qr_code_in_new_page()}
