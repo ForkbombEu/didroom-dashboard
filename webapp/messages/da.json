@@ -236,8 +236,6 @@
 	"microservice_name_description": "Dette er navnet på mikrotjenesterne, som vil være synlige for slutbrugere",
 	"microservice_endpoint_description": "Slutpunkt for mikrotjenesterne, brugt af kommunikationsprotokoller og synligt af slutbrugere og andre mikrotjenester",
 	"Select_language": "Vælg sprog",
-	"verification_flow_qr_code_title": "Generer verifikations-QR-kode(r) ved hjælp af Verifier-appen",
-	"verification_flow_qr_code_description": "QR-koden til verifikationen genereres af DIDroom Verifier-appen. Installer verifikationsappen, log ind med en konto, der er forbundet med denne organisation, og start verifikationsflowet derfra.",
 	"Help": "Hjælp",
 	"Github": "Github",
 	"Open_qr_code_in_new_page": "Åbn qr-kode på ny side",

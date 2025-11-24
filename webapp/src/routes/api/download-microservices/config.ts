@@ -22,6 +22,9 @@ export const config = {
 		dockerfile: 'Dockerfile',
 		index: 'index',
 		list: 'list',
+		details: 'details',
+		qrcode: 'qrcode',
+		deeplink: 'deeplink',
 	},
 	file_extensions: {
 		zen: 'zen',
