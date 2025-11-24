@@ -1,3 +1,15 @@
+# [1.39.0](https://github.com/ForkbombEu/signroom/compare/v1.38.8...v1.39.0) (2025-11-24)
+
+
+### Bug Fixes
+
+* **claims:** parse also simple array ([#1019](https://github.com/ForkbombEu/signroom/issues/1019)) ([b95b949](https://github.com/ForkbombEu/signroom/commit/b95b949d9d59097fee1bb5bcaa24f53074432416))
+
+
+### Features
+
+* issuance and verification flow QR code are fetched directly from the deployed services ([#1021](https://github.com/ForkbombEu/signroom/issues/1021)) ([92280c5](https://github.com/ForkbombEu/signroom/commit/92280c54344d0a69be93ba9683d8375e3f78afc5))
+
 ## [1.38.8](https://github.com/ForkbombEu/signroom/compare/v1.38.7...v1.38.8) (2025-11-04)
 
 
