@@ -36,23 +36,31 @@ export function objectSchemaToClaims(
 
 	function recursive(
 		node: ObjectSchema,
-		path: string[] = []
+		path: (string | null)[] = []
 	) : void {
 		for (const [key, value] of Object.entries(node.properties)) {
 			const newPath = [...path, key];
 			const isMandatory = node.required?.includes(key) ?? false;
 			if (value.type === 'object') {
 				recursive(value, newPath);
-			} else if (value.type !== 'array') {
+			} else if (value.type === 'array') {
+				if (value.items.type === 'object')
+					recursive(value.items, [...newPath, null])
+				else if (value.items.type === 'array')
+					console.log(`Property not handled: ${JSON.stringify(value.items, null, 2)}`)
+				else
+					claims.push({
+						mandatory: isMandatory,
+						display: [{ locale, name: value.title ?? key }],
+						path: newPath
+					});
+			} else {
 				const prop: ClaimsProperty = {
 					mandatory: isMandatory,
-					display: [{ locale, name: value.title ?? key, id: newPath.join('.') }],
+					display: [{ locale, name: value.title ?? key }],
 					path: newPath
 				};
 				claims.push(prop);
-			} else {
-				console.log(`Property not handled:`);
-				console.log(JSON.stringify(value, null, 2));
 			}
 		}
 	}
@@ -67,26 +75,24 @@ export type Claims = ClaimsProperty[];
 
 const DisplayPropertiesSchema = z.object({
 	name: z.string(),
-	locale: z.string(),
-	id: z.string()
+	locale: z.string()
 });
 
 type DisplayProperties = {
 	name: string;
 	locale: string;
-	id: string;
 };
 
 const ClaimsPropertySchema = z.object({
 	mandatory: z.boolean(),
 	display: z.array(DisplayPropertiesSchema).optional(),
-	path: z.array(z.string())
+	path: z.array(z.string().nullable())
 });
 
 export type ClaimsProperty = {
 	mandatory?: boolean;
 	display?: DisplayProperties[];
-	path: string[];
+	path: (string | null)[];
 	// TODO - Handle "type" property if necessary
 };
 
@@ -102,7 +108,7 @@ export function flattenClaimsProperties(
 	let propertyList: [string, ClaimsProperty][] = [];
 
 	claims.forEach((property) => {
-		const propertyName = property.display?.[0].id || '';
+		const propertyName = property.path.join('.');
 		if (checkClaimsProperty(property)) {
 			propertyList.push([propertyName, property]);
 		}
