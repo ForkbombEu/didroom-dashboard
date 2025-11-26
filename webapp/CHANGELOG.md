@@ -1,3 +1,10 @@
+## [1.39.1](https://github.com/ForkbombEu/signroom/compare/v1.39.0...v1.39.1) (2025-11-26)
+
+
+### Bug Fixes
+
+* **microservices:** conformance update on credential_issuer metadata ([#1023](https://github.com/ForkbombEu/signroom/issues/1023)) ([45c097e](https://github.com/ForkbombEu/signroom/commit/45c097e3a2e32125b2b8aebd416e71170ca4e2e7))
+
 # [1.39.0](https://github.com/ForkbombEu/signroom/compare/v1.38.8...v1.39.0) (2025-11-24)
 
 
