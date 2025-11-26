@@ -175,6 +175,10 @@ function convert_issuance_flow_to_credential_configuration(
 		conditional_set(issuance_flow.cryptography === 'W3C-VC', 'credential_definition.type[1]', issuance_flow.type_name),
 
 		_.set(
+			'scope',
+			issuance_flow.type_name
+		),
+		_.set(
 			'claims',
 			objectSchemaToClaims(issuance_flow.template.schema as ObjectSchema, DEFAULT_LOCALE)
 		),
