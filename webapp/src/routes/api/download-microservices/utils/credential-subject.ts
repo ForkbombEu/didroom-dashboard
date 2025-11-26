@@ -159,7 +159,7 @@ const credential_configuration_template = {
 	},
 	'W3C-VC': {
 		format: 'ldp_vc',
-		cryptographic_binding_methods_supported: ['jwk', 'did:dyne:sandbox.signroom'],
+		cryptographic_binding_methods_supported: ['jwk'],
 		credential_signing_alg_values_supported: ['Ed25519Signature2018'],
 		proof_types_supported: {
 			jwt: {
@@ -181,7 +181,7 @@ const credential_configuration_template = {
 			}
 		],
 		claims: [],
-		credentials_definition: {
+		credential_definition: {
 			'@context': [
 				'https://www.w3.org/ns/credentials/v2',
 				'https://www.w3.org/ns/credentials/examples/v2'
