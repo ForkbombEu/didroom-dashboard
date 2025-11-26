@@ -133,7 +133,7 @@ export function flattenClaimsProperties(
 const credential_configuration_template = {
 	'sd-jwt': {
 		format: 'dc+sd-jwt',
-		cryptographic_binding_methods_supported: ['jwk', 'did:dyne:sandbox.signroom'],
+		cryptographic_binding_methods_supported: ['jwk'],
 		credential_signing_alg_values_supported: ['ES256'],
 		proof_types_supported: {
 			jwt: {

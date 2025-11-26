@@ -163,7 +163,6 @@ function convert_issuance_flow_to_credential_configuration(
 			name: issuance_flow.display_name,
 			locale: DEFAULT_LOCALE,
 			logo: {
-				url: issuance_flow.logo,
 				alt_text: `${issuance_flow.display_name} logo`,
 				uri: issuance_flow.logo
 			},
@@ -173,7 +172,7 @@ function convert_issuance_flow_to_credential_configuration(
 		}),
 
 		conditional_set(issuance_flow.cryptography === 'sd-jwt', 'vct', issuance_flow.type_name),
-		conditional_set(issuance_flow.cryptography === 'W3C-VC', 'credentials_definition.type[1]', issuance_flow.type_name),
+		conditional_set(issuance_flow.cryptography === 'W3C-VC', 'credential_definition.type[1]', issuance_flow.type_name),
 
 		_.set(
 			'claims',
