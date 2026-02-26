@@ -8,6 +8,7 @@
 /pb_data/storage
 /pb_data/logs.*
 /pb_data/types.d.ts
+/pb_data/ca/
 .DS_Store
 .env
 pb.env
