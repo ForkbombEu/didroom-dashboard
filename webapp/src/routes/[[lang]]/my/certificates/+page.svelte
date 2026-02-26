@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { Collections, type CertificatesResponse } from '$lib/pocketbase/types';
 	import { createTypeProp } from '$lib/utils/typeProp';
 	import PortalWrapper from '$lib/components/portalWrapper.svelte';
-	import { Plus, ArrowUpTray } from 'svelte-heros-v2';
+	import { Plus, ArrowUpTray, ArrowDownTray } from 'svelte-heros-v2';
 	import DeleteRecord from '$lib/collectionManager/ui/recordActions/deleteRecord.svelte';
 	import { createToggleStore } from '$lib/components/utils/toggleStore';
 	import PageContent from '$lib/components/pageContent.svelte';
@@ -30,6 +30,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	} from '$lib/certificates/storage';
 	import { nanoid } from 'nanoid';
 	import PageTop from '$lib/components/pageTop.svelte';
+	import { pb } from '$lib/pocketbase';
 
 	//
 
@@ -51,6 +52,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	function triggerCertificateRedraw() {
 		certificateRedrawKey = nanoid(5);
 	}
+
+	function downloadCACertificate() {
+		window.open(`${pb.baseURL}/api/ca/certificate`, '_blank');
+	}
 </script>
 
 <PageContent>
@@ -59,6 +64,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<SectionTitle title="My Certificates" description={m.my_certificates_description()}>
 				<svelte:fragment slot="right">
 					<div class="flex items-center gap-2">
+						<Button color="alternative" on:click={downloadCACertificate}>
+							<Icon src={ArrowDownTray} mr />
+							Download CA Certificate
+						</Button>
 						<Button on:click={showCertificateModal.on}>
 							<Icon src={Plus} mr />
 							{m.Add_a_Key_Certificate_Pair()}
