@@ -4,27 +4,30 @@
 
 import * as x509 from '@peculiar/x509';
 import type { AlgorithmName, Certificate, CertificateData, CertificateKey } from './types';
-import { BEGIN_EC, END_EC } from './strings';
+import { BEGIN_EC, END_EC, BEGIN_CERTIFICATE, END_CERTIFICATE } from './strings';
+import { pb } from '$lib/pocketbase';
 
 //
 
 const ALGORITHM: EcKeyGenParams = {
 	name: 'ECDSA',
 	namedCurve: 'P-256'
-	// hash: 'SHA-256'
 };
 
 //
 
-export async function createAutosignedCertificateData(username: string, did: string): Promise<CertificateData> {
+export async function createAutosignedCertificateData(
+	username: string,
+	did: string
+): Promise<CertificateData> {
 	const keyPair = await generateKeyPair();
 	return {
-		certificate: await createAutosignedCertificate(keyPair, username, did),
-		key: await createAutosignedCertificateKey(keyPair)
+		certificate: await createCACertificate(keyPair, username, did),
+		key: await createCertificateKey(keyPair)
 	};
 }
 
-async function createAutosignedCertificateKey(keyPair: CryptoKeyPair): Promise<CertificateKey> {
+async function createCertificateKey(keyPair: CryptoKeyPair): Promise<CertificateKey> {
 	// storing the sk in local storage
 	const sk = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
 	const sk_b64 = btoa(String.fromCharCode(...new Uint8Array(sk))).replace(/.{64}/g, '$&\n');
@@ -40,33 +43,53 @@ async function createAutosignedCertificateKey(keyPair: CryptoKeyPair): Promise<C
 	};
 }
 
-async function createAutosignedCertificate(keyPair: CryptoKeyPair, username: string, did: string): Promise<Certificate> {
-	// compute date for certificate, valid from yesterday for an year
-	const yesterday = new Date();
-	yesterday.setDate(yesterday.getDate() - 1);
-	const year = new Date();
-	year.setFullYear(yesterday.getFullYear() + 1);
-
-	// certificate
-	const cert = await x509.X509CertificateGenerator.createSelfSigned({
-		serialNumber: '01',
+/**
+ * Create a certificate signed by the installation CA.
+ * 1. Generate a CSR (PKCS#10) client-side
+ * 2. Send it to the backend CA signing endpoint
+ * 3. Receive the CA-signed certificate
+ */
+async function createCACertificate(
+	keyPair: CryptoKeyPair,
+	username: string,
+	did: string
+): Promise<Certificate> {
+	// Create a Certificate Signing Request (CSR)
+	const csr = await x509.Pkcs10CertificateRequestGenerator.create({
 		name: 'CN=Didroom - ' + username,
-		notBefore: yesterday,
-		notAfter: year,
 		signingAlgorithm: ALGORITHM,
 		keys: keyPair,
-		extensions: [
-			new x509.BasicConstraintsExtension(true, 2, true),
-			new x509.ExtendedKeyUsageExtension(['1.2.3.4.5.6.7', '2.3.4.5.6.7.8'], true),
-			new x509.KeyUsagesExtension(
-				x509.KeyUsageFlags.keyCertSign | x509.KeyUsageFlags.cRLSign,
-				true
-			),
-			await x509.SubjectKeyIdentifierExtension.create(keyPair.publicKey),
-			new x509.SubjectAlternativeNameExtension([{ type: 'url', value: did }])
-		]
+		extensions: [new x509.SubjectAlternativeNameExtension([{ type: 'url', value: did }])]
 	});
-	const parsedCert = cert.toString('pem').split('\n').slice(1, -1).join('');
+
+	// Get the CSR in DER format, then base64 encode it
+	const csrDER = csr.rawData;
+	const csrBase64 = btoa(String.fromCharCode(...new Uint8Array(csrDER)));
+
+	// Send CSR to the backend CA for signing
+	const response = await fetch(`${pb.baseURL}/api/ca/sign`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${pb.authStore.token}`
+		},
+		body: JSON.stringify({ csr: csrBase64 })
+	});
+
+	if (!response.ok) {
+		const err = await response.json().catch(() => ({ error: 'Unknown error' }));
+		throw new Error(`CA signing failed: ${err.error || response.statusText}`);
+	}
+
+	const result = await response.json();
+	const certPEM: string = result.certificate;
+
+	// Extract the base64 certificate value (strip PEM headers)
+	const parsedCert = certPEM
+		.replace(BEGIN_CERTIFICATE, '')
+		.replace(END_CERTIFICATE, '')
+		.replace(/\n/g, '')
+		.trim();
 
 	return {
 		value: parsedCert,

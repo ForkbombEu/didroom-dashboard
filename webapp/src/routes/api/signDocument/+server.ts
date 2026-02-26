@@ -5,21 +5,39 @@
 import type { AlgorithmName } from '$lib/certificates/types';
 import { getErrorMessage } from '$lib/errorHandling';
 import { error, json, type RequestEvent } from '@sveltejs/kit';
+import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 
 const SHA512 = 'SHA512';
 const ECDSA = 'ECDSA';
 const RSA = 'RSA';
 
+async function fetchCACertificateChain(): Promise<Array<{ encodedCertificate: string }>> {
+	try {
+		const res = await fetch(`${PUBLIC_POCKETBASE_URL}/api/ca/certificate/base64`);
+		if (!res.ok) return [];
+		const data = await res.json();
+		if (data.certificate) {
+			return [{ encodedCertificate: data.certificate }];
+		}
+	} catch (e) {
+		console.warn('Could not fetch CA certificate for chain:', e);
+	}
+	return [];
+}
+
 export const POST = async (evt: RequestEvent) => {
 	const req = await evt.request.json();
 	const { fetch } = evt;
+
+	// Fetch the installation CA certificate for the chain
+	const certificateChain = await fetchCACertificateChain();
 
 	const params: Record<string, any> = {
 		parameters: {
 			signingCertificate: {
 				encodedCertificate: req.certPem
 			},
-			certificateChain: [],
+			certificateChain,
 			detachedContents: null,
 			asicContainerType: null,
 			digestAlgorithm: 'SHA256',
